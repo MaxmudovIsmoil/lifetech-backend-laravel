@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Payment;
+use App\Models\PaymentDetalies;
 use App\Models\User;
 use App\Models\Course;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use phpDocumentor\Reflection\DocBlock\Tags\Reference\Url;
 
 class StudentController extends Controller
 {
@@ -47,19 +51,19 @@ class StudentController extends Controller
         }
 
         /** student payments **/
-        $p = DB::table('payments AS p')
-            ->leftJoin('groups AS g', 'g.id' ,'=', 'p.group_id')
-            ->leftJoin('courses AS c', 'c.id' ,'=', 'g.course_id')
-            ->select('c.name AS cname', 'c.price AS cprice', 'c.month AS cmonth', 'g.name AS gname', 'g.status AS gstatus', 'p.*')
-            ->where('p.student_id','4')
-            ->where('g.status','2')
-            ->get();
-
-        $pd = DB::table('payments AS p')
-            ->leftJoin('payment_detalies AS pd', 'pd.payment_id', '=','p.id')
-            ->select( 'pd.payment_id', DB::raw('SUM(pd.paid) as paid'))
-            ->groupBy('pd.payment_id')
-            ->get();
+//        $p = DB::table('payments AS p')
+//            ->leftJoin('groups AS g', 'g.id' ,'=', 'p.group_id')
+//            ->leftJoin('courses AS c', 'c.id' ,'=', 'g.course_id')
+//            ->select('c.name AS cname', 'c.price AS cprice', 'c.month AS cmonth', 'g.name AS gname', 'g.status AS gstatus', 'p.*')
+//            ->where('p.student_id','4')
+//            ->where('g.status','2')
+//            ->get();
+//
+//        $pd = DB::table('payments AS p')
+//            ->leftJoin('payment_detalies AS pd', 'pd.payment_id', '=','p.id')
+//            ->select( 'pd.payment_id', DB::raw('SUM(pd.paid) as paid'))
+//            ->groupBy('pd.payment_id')
+//            ->get();
 
 //        echo "<pre>";
 //        print_r($p);
@@ -219,7 +223,12 @@ class StudentController extends Controller
         return response()->json(['student_active_groups' => $student_active_groups]);
     }
 
-
+    /**
+     * Student guruhga to'lagan to'lovlari
+     * @param $student_id
+     * @param $group_id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function student_payments_in_group($student_id, $group_id)
     {
         $student_payments = DB::table('payments AS p')
@@ -247,5 +256,60 @@ class StudentController extends Controller
             'student_payments' => $student_payments,
             'student_payment_detalies_arr' => $student_payment_detalies_arr
         ]);
+    }
+
+
+    /**
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function student_payment(Request $request, $id)
+    {
+        $validate = $request->validate([
+            'month' => 'required',
+            'paid'  => 'required',
+        ]);
+
+        if ($request->discount_type == 0) // no discount
+            $discount = 0;
+        elseif ($request->discount_type == 1) // cash
+            $discount = $request->discount_val;
+        elseif($request->discount_type == 2) // plastic
+            $discount = $request->total * $request->discount_val * 0.01;
+
+
+
+        try {
+            if ($request->last_lend >= 0) {
+
+                $payment = Payment::create([
+                    'group_id' => $request->group_id,
+                    'student_id' => $id,
+                    'total' => $request->total,
+                    'month' => $request->month,
+                    'discount' => $discount,
+                    'discount_type' => $request->discount_type,
+                    'discount_val' => ($request->discount_val) ? $request->discount_val : '',
+                ]);
+                $payment_id = $payment->id;
+            }
+            else{
+                $payment_id = $request->last_payment_id;
+            }
+
+            $payment_detailes = PaymentDetalies::create([
+                'payment_id'    => $payment_id,
+                'paid'          => $request->paid,
+                'payment_type'  => $request->payment_type,
+            ]);
+
+
+            return response()->json(['success' => $payment_detailes]);
+        }
+        catch (\Exception $exception) {
+            return response()->json([$exception]);
+        }
+
     }
 }

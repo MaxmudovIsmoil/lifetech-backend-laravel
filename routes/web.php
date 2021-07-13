@@ -75,6 +75,8 @@ Route::get('/student/student_active_groups/{id}', [StudentController::class, 'st
 
 Route::get('/student/student_payments_in_group/{student_id}/{group_id}', [StudentController::class, 'student_payments_in_group'])->name('student.student_payments_in_group');
 
+Route::post('/student/student_payment/{id}', [StudentController::class, 'student_payment'])->name('student.student_payment');
+
 /**###################################### ./STUDENT ############################################**/
 
 

@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="{{ asset('icons-css/all.css') }}">
     <link rel="stylesheet" href="{{ asset('css/form-validation.css') }}">
     <link rel="stylesheet" href="{{ asset('css/multi-select.css') }}">
+
+    <link rel="stylesheet" href="{{ asset('css/bootstrap-multiselect.css') }}">
+
     <link rel="stylesheet" href="{{ asset('css/datatable.css') }}">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <style>
@@ -192,6 +195,9 @@
 <script src="{{ asset('js/jquery.maskedinput.min.js') }}"></script>
 <script src="{{ asset('js/form-validation.js') }}"></script>
 <script src="{{ asset('js/jquery.multi-select.js') }}"></script>
+
+<script src="{{ asset('js/bootstrap-multiselect.js') }}"></script>
+
 
 <script src="{{ asset('js/functionDelete.js') }}"></script>
 <script src="{{ asset('js/functionTeacher.js') }}"></script>

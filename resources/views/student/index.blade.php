@@ -165,51 +165,55 @@
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
                                                     </div>
-                                                    <div class="modal-body text-left pb-0">
-                                                        <div class="row">
-                                                            <div class="col-md-8">
-                                                                <select name="student_active_group" class="form-control js_student_active_group mb-3"></select>
-                                                                <table class="table table-striped table-bordered js_student_payment_table"></table>
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <p>To'lov qilish</p>
-                                                                <form method="post" action="" data-student_id="{{ $s['id'] }}" class="form-group js_student_payment_in_group_form_modal">
-                                                                    @csrf
-                                                                    <div class="row">
-                                                                        <div class="col-md-12">
-                                                                            <input type="text" name="paid" class="form-control paid" value="" placeholder="Summani kiriting!">
-                                                                            <div class="valid-feedback paid-error text-danger">
-                                                                                Summani kiriting!
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="col-md-12 mt-3">
-                                                                            <select class="form-control payment_type" name="payment_type">
-                                                                                <option value="1">Naqt</option>
-                                                                                <option value="2">Plastic</option>
-                                                                                <option value="3">Click</option>
-                                                                            </select>
-                                                                        </div>
-                                                                        <div class="col-md-12 mt-3">
-                                                                            <select class="form-control discount_type" name="discount_type">
-                                                                                <option value="0">-Chegirma-</option>
-                                                                                <option value="1">so'm</option>
-                                                                                <option value="2">foiz</option>
-                                                                            </select>
-                                                                        </div>
-                                                                        <div class="col-md-12 mt-3 mb-2">
-                                                                            <input type="number" name="discount_val" class="form-control discount_val d-none" value="" placeholder="Chegirmani kiriting!">
-                                                                            <div class="valid-feedback discount-val-error text-danger">
-                                                                                Chegirmani kiriting!
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div class="col-md-12 mt-1">
-                                                                            <button type="submit" class="btn btn-success btn-block">Saqlash</button>
-                                                                        </div>
-                                                                    </div>
-                                                                </form>
-                                                            </div>
+                                                    <div class="modal-body text-left pb-0 pt-2">
+                                                        <select name="student_active_group" class="form-control js_student_active_group mb-3"></select>
+                                                        <div class="div-student-payments">
+                                                            <table class="table table-striped table-bordered js_student_payment_table"></table>
                                                         </div>
+                                                        <hr class="mt-0 mb-2">
+                                                        <p class="mb-1">To'lov qilish</p>
+                                                        <form method="post" action="{{ route('student.student_payment', [$s['id']]) }}" data-student_id="{{ $s['id'] }}" class="form-group js_student_payment_in_group_form_modal d-flex justify-content-between mb-0">
+                                                            @csrf
+                                                            <input type="hidden" name="group_id" class="js_group_id" value="">
+                                                            <input type="hidden" name="total" class="js_total" value="">
+                                                            <input type="hidden" name="last_payment_id" class="js_last_payment_id" value="">
+                                                            <input type="hidden" name="last_lend" class="js_last_lend" value="">
+                                                            <div class="form-group">
+                                                                <select class="form-control js_student_payment_month" name="month">
+                                                                </select>
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <input type="number" name="paid" class="form-control paid" value="" placeholder="Summani kiriting!" required>
+                                                                <div class="valid-feedback paid-error text-danger">
+                                                                    Summani kiriting!
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <select class="form-control payment_type" name="payment_type">
+                                                                    <option value="1">Naqt</option>
+                                                                    <option value="2">Plastic</option>
+                                                                    <option value="3">Click</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <select class="form-control discount_type" name="discount_type">
+                                                                    <option value="0">-Chegirma-</option>
+                                                                    <option value="1">so'm</option>
+                                                                    <option value="2">foiz</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <input type="number" name="discount_val" class="form-control discount_val d-none" value="" placeholder="Chegirmani kiriting!">
+                                                                <div class="valid-feedback discount-val-error text-danger">
+                                                                    Chegirmani kiriting!
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group">
+                                                                <button type="submit" class="btn btn-success btn-block">Saqlash</button>
+                                                            </div>
+                                                        </form>
                                                     </div>
                                                     <div class="modal-footer mt-0">
                                                         <button type="button" class="btn btn-secondary btn-square" data-dismiss="modal">Bekor qilish</button>

@@ -12,3 +12,8 @@
 .students .btn-group .btn:first-child{
     border-left: none;
 }
+
+.div-student-payments{
+    overflow-y: scroll;
+    height: 150px;
+}

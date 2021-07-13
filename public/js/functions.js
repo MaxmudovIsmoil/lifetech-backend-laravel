@@ -1,9 +1,30 @@
 
+function formatDate(date) {
+    var d = new Date(date),
+        minutes = '' + d.getMinutes(),
+        hours = '' + d.getHours(),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (minutes.length < 2)
+        minutes = '0'+minutes
+    if (hours.length < 2)
+        hours = '0'+hours
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+
+    return [day, month, year].join('.')+" "+hours+" : "+minutes;
+}
+
+
 /**
  * Student active groups
  * **/
 function studentActiveGroups(student_active_groups) {
-    let sag = '<option value="">-Tanlang-</option>';
+    let sag = '<option value="0">-Tanlang-</option>';
     $.each(student_active_groups, function (key, value) {
         sag += '<option value="'+value.group_id+'" data-student-id="'+ value.student_id +'">' + value.cname + ", " + value.gname + '</option>';
     })
@@ -20,6 +41,7 @@ function StudentPayments(student_payments, payment_detalies)
     sp += '<thead>\n' +
           '  <tr>\n' +
           '     <th class="text-center">Oy</th>\n' +
+          '     <th class="text-center">Sana</th>\n' +
           '     <th class="text-center">To\'lov</th>\n' +
           '     <th class="text-center">Chegirma</th>\n' +
           '     <th class="text-center">To\'langan</th>\n' +
@@ -36,14 +58,27 @@ function StudentPayments(student_payments, payment_detalies)
         }
         sp += '<tr>\n' +
               '   <td class="text-center">' + value.month + '</td>\n' +
+              '   <td class="text-center">' + formatDate(value.created_at) + '</td>\n' +
               '   <td class="text-center">' + value.total + '</td>\n' +
               '   <td class="text-center">' + value.discount + '</td>\n' +
               '   <td class="text-center">' + payment_detalies[value.id] + '</td>\n' +
-              '   <td class="text-center text-danger">' + qarz + '</td>\n' +
+              '   <td class="text-center text-danger js_student_lend" data-payment_id='+value.id+'>' + qarz + '</td>\n' +
               '</tr>';
     });
         sp +='</tbody>';
     return sp;
+}
+
+/**
+ * Student payment this course month
+ * **/
+function student_payment_month(months)
+{
+    let month = '<option value="">-Oyni tanlang-</option>';
+    for(var i = 1; i <= months; i++){
+        month += '<option value="'+i+'">'+i+' oy</option>';
+    }
+    return month;
 }
 
 
@@ -157,34 +192,57 @@ $(document).ready(function () {
 
         let this_tr = $(this).closest('.js_this_tr')
         let modal = $(this).siblings('.modal')
-        let payment_table = $(this).siblings('.js_student_payment_table')
+        let payment_table = $(this).siblings('.div-student-payments').find('.js_student_payment_table');
 
-        console.log(payment_table)
+        let month = $(document).find('.js_student_payment_month');
+        let paid = $(document).find('.paid')
+        let total = $(document).find('.js_total')
 
         let group_id = $(this).val();
         let student_id = $(this).data('student_id');
 
-        console.log(group_id)
-        console.log(student_id)
 
-        let pathname = window.location.origin;
-        let url = pathname+'/student/student_payments_in_group/'+student_id+'/'+group_id;
-        // console.log(pathname)
-        $.ajax({
-            url: url,
-            type: 'GET',
-            dataType: "json",
-            // data: {},
-            success: (response) => {
-                console.log(response)
-                payment_table.html(StudentPayments(response.student_payments, response.student_payment_detalies_arr))
-            },
-            error: (response) => {
-                console.log(response)
-            }
-        });
+        $(document).find('.js_group_id').val(group_id)
+
+        if (group_id) {
+
+            let pathname = window.location.origin;
+            let url = pathname+'/student/student_payments_in_group/'+student_id+'/'+group_id;
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: "json",
+                // data: {},
+                success: (response) => {
+                    console.log(response)
+                    payment_table.html(StudentPayments(response.student_payments, response.student_payment_detalies_arr))
+
+                    month.html(student_payment_month(response.student_payments[0].cmonth));
+                    paid.attr('data-price', response.student_payments[0].cprice)
+                    total.val(response.student_payments[0].cprice)
+                },
+                error: (response) => {
+                    console.log(response)
+                }
+            });
+        }
+        else{
+            payment_table.html();
+        }
     });
 
+    /** oy tanlanganda qarzdorligi bor o'tgan oydagilarni payment_id, qarzdorlikni olib formafa hidden tipida qo'shish **/
+    $('.js_student_payment_month').on('change', function(){
+        console.log($(this).val())
+        let student_this_lend = $(document).find('.js_student_lend');
+        let lend = student_this_lend.eq(($(this).val())-1)
+        let form = $(this).closest('.js_student_payment_in_group_form_modal')
+        form.find('.js_last_payment_id').val(lend.data('payment_id'))
+        form.find('.js_last_lend').val(lend.html())
+
+        console.log(form)
+    });
 
     /** discount type **/
     $('.discount_type').on('change', function(e) {
@@ -198,16 +256,55 @@ $(document).ready(function () {
             discount_val.addClass('d-none')
     });
 
+    $('.paid').on('keyup', function () {
+
+        let price = $(this).data('price');
+
+        if ($(this).val() > price)
+            $(this).css('border', '1px solid red');
+        else
+            $(this).css('border', '1px solid #d8dbe0');
+
+    })
+
+
 
     /** Student payment modal form **/
     $('.js_student_payment_in_group_form_modal').on('submit', function(e) {
         e.preventDefault()
 
-        let paid = $(this).find('.paid').val()
-        let payment_type = $(this).find('.payment_type').val()
-        let discount_type = $(this).find('.discount_type').val()
+        let url = $(this).attr('action')
 
+        // let payment_id = $(document).find('.js_student_lend').last().data('payment_id')
+        // let lend = $(document).find('.js_student_lend').last().html()
+        //
+        // $(this).find('.js_last_payment_id').val(payment_id)
+        // $(this).find('.js_last_lend').val(lend)
+
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            dataType: "json",
+            data: $(this).serialize(),
+            success: (response) => {
+                console.log(response)
+            },
+            error: (response) => {
+                console.log(response)
+            }
+        });
     });
 
+
+
+
+    // $('.js_student_payment_month').multiselect({
+    //     includeSelectAllOption: true,
+    //     allSelectedText: 'Barchasi',
+    //     nonSelectedText: 'Oyni tanlang',
+    //     selectAllText: "Barchasini tanlash",
+    //     nSelectedText: " ta tanlash"
+    // });
 
 });
