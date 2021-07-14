@@ -4,7 +4,13 @@
 
     <div class="row">
         <div class="col-sm-12">
-            <div class="card">
+            <div class="card groups">
+                <div class="btn-group btn-square">
+                    <a href="{{ route('group.index',[1]) }}" class="btn btn-square @if(Request::segment(2) == 1) btn-primary @else btn-secondary @endif">Yangi guruhlar</a>
+                    <a href="{{route('group.index',[2])  }}" class="btn btn-square @if(Request::segment(2) == 2) btn-primary @else btn-secondary @endif">O'qiyotgan guruhlar</a>
+                    <a href="{{ route('group.index',[3]) }}" class="btn btn-square @if(Request::segment(2) == 3) btn-primary @else btn-secondary @endif">Bitirgan guruhlar</a>
+                </div>
+
                 <div class="card-body" style="position: relative;">
                     <a href="" class="btn btn-square btn-primary" data-toggle="modal" data-target="#add-model" style="position: absolute; z-index: 1;">Qo'shish</a>
 

@@ -82,7 +82,7 @@ Route::post('/student/student_payment/{id}', [StudentController::class, 'student
 
 /**####################################### GROUP ###########################################**/
 
-Route::get('/group', [GroupController::class, 'index'])->name('group.index');
+Route::get('/group/{id}', [GroupController::class, 'index'])->name('group.index');
 
 Route::post('/group/add', [GroupController::class, 'store'])->name('group.store');
 

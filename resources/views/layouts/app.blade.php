@@ -73,7 +73,7 @@
             </a>
         </li>
         <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link @if(Request::segment(1) == 'group') active @endif" href="{{ route('group.index') }}">
+            <a class="c-sidebar-nav-link @if(Request::segment(1) == 'group') active @endif" href="{{ route('group.index',[1]) }}">
                 <svg class="c-sidebar-nav-icon">
                     <use xlink:href="{{ asset('icons/sprites/free.svg#cil-library') }}"></use>
                 </svg>

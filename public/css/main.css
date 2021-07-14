@@ -6,10 +6,12 @@
     height: 180px;
 }
 
-.students .btn-group .btn{
+.students .btn-group .btn,
+.groups .btn-group .btn{
     border-left: 1px solid gray;
 }
-.students .btn-group .btn:first-child{
+.students .btn-group .btn:first-child,
+.groups .btn-group .btn:first-child{
     border-left: none;
 }
 

@@ -50,34 +50,6 @@ class StudentController extends Controller
 
         }
 
-        /** student payments **/
-//        $p = DB::table('payments AS p')
-//            ->leftJoin('groups AS g', 'g.id' ,'=', 'p.group_id')
-//            ->leftJoin('courses AS c', 'c.id' ,'=', 'g.course_id')
-//            ->select('c.name AS cname', 'c.price AS cprice', 'c.month AS cmonth', 'g.name AS gname', 'g.status AS gstatus', 'p.*')
-//            ->where('p.student_id','4')
-//            ->where('g.status','2')
-//            ->get();
-//
-//        $pd = DB::table('payments AS p')
-//            ->leftJoin('payment_detalies AS pd', 'pd.payment_id', '=','p.id')
-//            ->select( 'pd.payment_id', DB::raw('SUM(pd.paid) as paid'))
-//            ->groupBy('pd.payment_id')
-//            ->get();
-
-//        echo "<pre>";
-//        print_r($p);
-//        echo "</pre>";
-//
-//        $arr = array();
-//        foreach($pd as $k => $v) {
-//            $arr[$v->payment_id] = $v->paid;
-//        }
-//        echo "<pre>";
-//        print_r($arr);
-//        echo "</pre>";
-
-
         return view('student.index', compact('students', 'course', 'i'));
     }
 
@@ -169,6 +141,7 @@ class StudentController extends Controller
         $course_ids = substr($course_ids, 0, -1);
 
 
+        $status = isset($request->status) ? $request->status : '1';
         if ($validate){
 
             $studentsOnce = User::findOrFail($id);
@@ -179,7 +152,7 @@ class StudentController extends Controller
                 'address'   => $request->address,
                 'gender'    => $request->gender,
                 'born'      => isset($request->born) ? $request->born : '',
-                'status'    => isset($request->status) ? $request->status : '1',
+                'status'    => $status,
                 'company'   => isset($request->company) ? $request->company : '',
                 'advertising'=> isset($request->advertising) ? $request->advertising : '',
                 'course_ids'=> $course_ids,
@@ -190,7 +163,7 @@ class StudentController extends Controller
             echo 'validate error';
 
 
-        return redirect()->route('student.index',[1]);
+        return redirect()->route('student.index',[$status]);
     }
 
     /**
@@ -279,7 +252,6 @@ class StudentController extends Controller
             $discount = $request->total * $request->discount_val * 0.01;
 
 
-
         try {
             if ($request->last_lend >= 0) {
 
@@ -296,6 +268,14 @@ class StudentController extends Controller
             }
             else{
                 $payment_id = $request->last_payment_id;
+
+                $paymentLast = Payment::findOrFail($payment_id);
+                $paymentLast->fill([
+                    'discount' => $discount,
+                    'discount_type' => $request->discount_type,
+                    'discount_val' => ($request->discount_val) ? $request->discount_val : '',
+                ]);
+                $paymentLast->save();
             }
 
             $payment_detailes = PaymentDetalies::create([

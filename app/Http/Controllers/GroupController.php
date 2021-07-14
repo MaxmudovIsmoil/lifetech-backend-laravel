@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Group;
+use App\Models\User;
 use App\Models\GroupStudent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,7 @@ class GroupController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $course = Course::all();
 
@@ -29,11 +30,13 @@ class GroupController extends Controller
             ->where('users.utype', 'teacher')
             ->get();
 
+        $id = $request->route('id');
 
         $group = DB::table('groups')
             ->join('users', 'users.id', "=", 'groups.teacher_id')
             ->join('courses', 'courses.id', '=', 'groups.course_id')
             ->select('groups.*', 'users.firstname', 'users.lastname', 'courses.name as cname', 'courses.price')
+            ->where('groups.status', $id)
             ->get();
         $i = 1;
 
@@ -120,7 +123,7 @@ class GroupController extends Controller
                 'type'      =>  $request->type,
                 'status'    => 1
             ]);
-            return redirect()->route('group.index');
+            return redirect()->route('group.index',[1]);
         } catch (\Exception $exception) {
             dd($exception);
         }
@@ -157,6 +160,32 @@ class GroupController extends Controller
         }
         $day = substr($dayStr, 0, -1);
 
+        /** Guruh yopilganda guruhga tegishli studentlarni course_id larini o'chirish **/
+        if ($request->status == 3) {
+            $students_ids = DB::table('group_students AS gs')
+                            ->leftJoin('users AS u','u.id', '=', 'gs.student_id')
+                            ->where('gs.group_id', $id)
+                            ->get();
+
+            foreach($students_ids as $k => $v) {
+
+                $cids = array();
+                foreach(explode(';', $v->course_ids) as $cv) {
+                    if($cv === $request->course_id)
+                        unset($cv);
+                    else
+                        $cids[] = $cv;
+                }
+
+                $student = User::findOrFail($v->student_id);
+                $student->fill([
+                    'course_ids' => implode(';', $cids),
+                    'status'    => 3,
+                ]);
+                $student->save();
+
+            } // foreach
+        } // if
 
         $course = Group::findOrFail($id);
         $course->fill([
@@ -170,7 +199,7 @@ class GroupController extends Controller
         ]);
         $course->save();
 
-        return redirect()->route('group.index');
+        return redirect()->route('group.index', [$request->status]);
 
     }
 

@@ -74,7 +74,7 @@ function StudentPayments(student_payments, payment_detalies)
  * **/
 function student_payment_month(months)
 {
-    let month = '<option value="">-Oyni tanlang-</option>';
+    let month = '<option value="">Oyni tanlang</option>';
     for(var i = 1; i <= months; i++){
         month += '<option value="'+i+'">'+i+' oy</option>';
     }
@@ -240,8 +240,6 @@ $(document).ready(function () {
         let form = $(this).closest('.js_student_payment_in_group_form_modal')
         form.find('.js_last_payment_id').val(lend.data('payment_id'))
         form.find('.js_last_lend').val(lend.html())
-
-        console.log(form)
     });
 
     /** discount type **/
@@ -274,13 +272,6 @@ $(document).ready(function () {
         e.preventDefault()
 
         let url = $(this).attr('action')
-
-        // let payment_id = $(document).find('.js_student_lend').last().data('payment_id')
-        // let lend = $(document).find('.js_student_lend').last().html()
-        //
-        // $(this).find('.js_last_payment_id').val(payment_id)
-        // $(this).find('.js_last_lend').val(lend)
-
 
         $.ajax({
             url: url,
