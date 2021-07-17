@@ -4,11 +4,11 @@
     <div class="fade-in">
         <div class="row">
             <div class="col-sm-6 col-lg-3">
-                <div class="card text-white bg-primary">
+                <div class="card text-white bg-danger">
                     <div class="card-body card-body pb-0 d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="text-value-lg">125</div>
-                            <div>O'quvchilar soni</div>
+                            <div class="text-value-lg">{{ $students_new }}</div>
+                            <div>Yangi o'quvchilar</div>
                         </div>
                         <div class="btn-group">
                             <button class="btn btn-transparent dropdown-toggle p-0" type="button"
@@ -17,11 +17,10 @@
                                     <use xlink:href="{{ asset('icons/sprites/free.svg#cil-settings') }}"></use>
                                 </svg>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-right">
-                                <a class="dropdown-item" href="#">Action</a>
-                                <a class="dropdown-item" href="#">Another action</a>
-                                <a class="dropdown-item" href="#">Something else here</a>
-                            </div>
+                            <div class="dropdown-menu dropdown-menu-right"><a class="dropdown-item"
+                                                                              href="#">Action</a><a
+                                    class="dropdown-item" href="#">Another action</a><a
+                                    class="dropdown-item" href="#">Something else here</a></div>
                         </div>
                     </div>
                     <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
@@ -33,8 +32,21 @@
                                 <div class=""></div>
                             </div>
                         </div>
-                        <canvas class="chart chartjs-render-monitor" id="card-chart1" height="70"
-                                style="display: block; width: 202px; height: 70px;" width="202"></canvas>
+                        <canvas class="chart chartjs-render-monitor" id="card-chart4" height="70"
+                                width="202" style="display: block; width: 202px; height: 70px;"></canvas>
+                        <div id="card-chart4-tooltip" class="c-chartjs-tooltip top"
+                             style="opacity: 0; left: 113.247px; top: 102px;">
+                            <div class="c-tooltip-header">
+                                <div class="c-tooltip-header-item">March</div>
+                            </div>
+                            <div class="c-tooltip-body">
+                                <div class="c-tooltip-body-item">
+                                                    <span class="c-tooltip-body-item-color"
+                                                          style="background-color: rgba(255, 255, 255, 0.2);"></span><span
+                                        class="c-tooltip-body-item-label">My First dataset</span><span
+                                        class="c-tooltip-body-item-value">80</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -43,8 +55,8 @@
                 <div class="card text-white bg-info">
                     <div class="card-body card-body pb-0 d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="text-value-lg">35</div>
-                            <div>Guruhlar soni</div>
+                            <div class="text-value-lg">{{ $students_active }}</div>
+                            <div>O'qiyotgan o'quvchilar</div>
                         </div>
                         <div class="btn-group">
                             <button class="btn btn-transparent dropdown-toggle p-0" type="button"
@@ -78,8 +90,7 @@
                             </div>
                             <div class="c-tooltip-body">
                                 <div class="c-tooltip-body-item">
-                                                    <span class="c-tooltip-body-item-color"
-                                                          style="background-color: rgb(51, 153, 255);"></span>
+                                    <span class="c-tooltip-body-item-color" style="background-color: rgb(51, 153, 255);"></span>
                                     <span class="c-tooltip-body-item-label">My First dataset</span>
                                     <span class="c-tooltip-body-item-value">9</span>
                                 </div>
@@ -93,8 +104,8 @@
                 <div class="card text-white bg-warning">
                     <div class="card-body card-body pb-0 d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="text-value-lg">8</div>
-                            <div>O'qituvchilar soni</div>
+                            <div class="text-value-lg">{{ $groups_new }}</div>
+                            <div>Yangi guruhlar</div>
                         </div>
                         <div class="btn-group">
                             <button class="btn btn-transparent dropdown-toggle p-0" type="button"
@@ -138,11 +149,11 @@
             </div>
 
             <div class="col-sm-6 col-lg-3">
-                <div class="card text-white bg-danger">
+                <div class="card text-white bg-primary">
                     <div class="card-body card-body pb-0 d-flex justify-content-between align-items-start">
                         <div>
-                            <div class="text-value-lg">9.823</div>
-                            <div>Members online</div>
+                            <div class="text-value-lg">{{ $groups_new }}</div>
+                            <div>O'quvchilar guruhlar</div>
                         </div>
                         <div class="btn-group">
                             <button class="btn btn-transparent dropdown-toggle p-0" type="button"
@@ -151,10 +162,11 @@
                                     <use xlink:href="{{ asset('icons/sprites/free.svg#cil-settings') }}"></use>
                                 </svg>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-right"><a class="dropdown-item"
-                                                                              href="#">Action</a><a
-                                    class="dropdown-item" href="#">Another action</a><a
-                                    class="dropdown-item" href="#">Something else here</a></div>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="#">Action</a>
+                                <a class="dropdown-item" href="#">Another action</a>
+                                <a class="dropdown-item" href="#">Something else here</a>
+                            </div>
                         </div>
                     </div>
                     <div class="c-chart-wrapper mt-3 mx-3" style="height:70px;">
@@ -166,21 +178,8 @@
                                 <div class=""></div>
                             </div>
                         </div>
-                        <canvas class="chart chartjs-render-monitor" id="card-chart4" height="70"
-                                width="202" style="display: block; width: 202px; height: 70px;"></canvas>
-                        <div id="card-chart4-tooltip" class="c-chartjs-tooltip top"
-                             style="opacity: 0; left: 113.247px; top: 102px;">
-                            <div class="c-tooltip-header">
-                                <div class="c-tooltip-header-item">March</div>
-                            </div>
-                            <div class="c-tooltip-body">
-                                <div class="c-tooltip-body-item">
-                                                    <span class="c-tooltip-body-item-color"
-                                                          style="background-color: rgba(255, 255, 255, 0.2);"></span><span
-                                        class="c-tooltip-body-item-label">My First dataset</span><span
-                                        class="c-tooltip-body-item-value">80</span></div>
-                            </div>
-                        </div>
+                        <canvas class="chart chartjs-render-monitor" id="card-chart1" height="70"
+                                style="display: block; width: 202px; height: 70px;" width="202"></canvas>
                     </div>
                 </div>
             </div>

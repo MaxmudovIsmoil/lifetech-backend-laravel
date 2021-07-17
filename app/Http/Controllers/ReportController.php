@@ -21,16 +21,16 @@ class ReportController extends Controller
      */
     public function index()
     {
-        $costs = DB::table('costs')->get();
+//        $costs = DB::table('costs')->get();
+//
+//        $expense = DB::table('expenses')
+//            ->leftJoin('costs', 'costs.id', '=', 'expenses.cost_id')
+//            ->select('expenses.*', 'costs.name as cname')
+//            ->get();
+//
+//        $i = 1;
 
-        $expense = DB::table('expenses')
-            ->leftJoin('costs', 'costs.id', '=', 'expenses.cost_id')
-            ->select('expenses.*', 'costs.name as cname')
-            ->get();
-
-        $i = 1;
-
-        return view('expense.index', compact('expense', 'i', 'costs'));
+        return view('report.index');
     }
 
 

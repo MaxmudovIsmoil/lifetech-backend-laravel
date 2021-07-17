@@ -9,6 +9,7 @@
                     <a href="{{ route('student.index',[1]) }}" class="btn btn-square @if(Request::segment(2) == 1) btn-primary @else btn-secondary @endif">Yangi kelganlar</a>
                     <a href="{{route('student.index',[2])  }}" class="btn btn-square @if(Request::segment(2) == 2) btn-primary @else btn-secondary @endif">O'qiyotganlar</a>
                     <a href="{{ route('student.index',[3]) }}" class="btn btn-square @if(Request::segment(2) == 3) btn-primary @else btn-secondary @endif">Bitirganlar</a>
+                    <a href="{{ route('student.index',[0]) }}" class="btn btn-square @if(Request::segment(2) == 0) btn-primary @else btn-secondary @endif">O'qimaganlar</a>
                 </div>
                 <div class="card-body" style="position: relative;">
                     <a href="" class="btn btn-square btn-primary" data-toggle="modal" data-target="#add-model" style="position: absolute; z-index: 1;">Qo'shish</a>
@@ -95,8 +96,15 @@
                                                 <input type="text" class="form-control" name="company" id="company">
                                             </div>
                                             <div class="col-md-6 mt-2">
-                                                <label for="advertising">Reklamani qayerda ko'rdingiz</label>
-                                                <input type="text" class="form-control" name="advertising" id="advertising">
+                                                <div class="form-group">
+                                                    <label for="advertising">Reklamani qayerda ko'rdingiz</label>
+                                                    <select name="advertising" class="form-control" id="advertising" required>
+                                                        <option value="">---</option>
+                                                        @foreach($advertising as $ad)
+                                                            <option>{{ $ad->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -150,7 +158,7 @@
                                 <td>{{ date('d.m.Y H:i', strtotime($s['created_at'])) }}</td>
                                 <td class="text-right">
                                     <div class="btn-group js_btn_group" role="group" aria-label="Basic example">
-                                        <a href="{{ route('student.student_active_groups', [$s['id']]) }}" class="js_student_payment_btn btn btn-success btn-square btn-sm" title="Ko'rish" data-toggle="modal" data-target="#payment{{ $s['id'] }}">
+                                        <a href="{{ route('student.student_active_groups', [$s['id']]) }}" class="js_student_payment_btn btn btn-success btn-square btn-sm" title="To'lov" data-toggle="modal" data-target="#payment{{ $s['id'] }}">
                                             <svg class="c-icon c-icon-lg">
                                                 <use xlink:href="{{ asset('/icons/sprites/free.svg#cil-dollar') }}"></use>
                                             </svg>
@@ -172,48 +180,50 @@
                                                         </div>
                                                         <hr class="mt-0 mb-2">
                                                         <p class="mb-1">To'lov qilish</p>
-                                                        <form method="post" action="{{ route('student.student_payment', [$s['id']]) }}" data-student_id="{{ $s['id'] }}" class="form-group js_student_payment_in_group_form_modal d-flex justify-content-between mb-0">
+                                                        <form method="post" action="{{ route('student.student_payment', [$s['id']]) }}" data-student_id="{{ $s['id'] }}" class="form-group js_student_payment_in_group_form_modal d-flex justify-content-between mb-1">
                                                             @csrf
                                                             <input type="hidden" name="group_id" class="js_group_id" value="">
                                                             <input type="hidden" name="total" class="js_total" value="">
                                                             <input type="hidden" name="last_payment_id" class="js_last_payment_id" value="">
                                                             <input type="hidden" name="last_lend" class="js_last_lend" value="">
-                                                            <div class="form-group">
+                                                            <input type="hidden" name="td_last_month" class="js_td_last_month" value="">
+                                                            <div class="form-group mb-1">
                                                                 <select class="form-control js_student_payment_month" name="month">
                                                                 </select>
                                                             </div>
 
-                                                            <div class="form-group">
-                                                                <input type="number" name="paid" class="form-control paid" value="" placeholder="Summani kiriting!" required>
+                                                            <div class="form-group mb-1">
+                                                                <input type="number" name="paid" class="form-control paid" min="1" max="" placeholder="Summani kiriting!" required>
                                                                 <div class="valid-feedback paid-error text-danger">
                                                                     Summani kiriting!
                                                                 </div>
                                                             </div>
-                                                            <div class="form-group">
+                                                            <div class="form-group mb-1">
                                                                 <select class="form-control payment_type" name="payment_type">
                                                                     <option value="1">Naqt</option>
                                                                     <option value="2">Plastic</option>
                                                                     <option value="3">Click</option>
                                                                 </select>
                                                             </div>
-                                                            <div class="form-group">
+                                                            <div class="form-group mb-1">
                                                                 <select class="form-control discount_type" name="discount_type">
-                                                                    <option value="0">-Chegirma-</option>
+                                                                    <option value="0">Chegirma</option>
                                                                     <option value="1">so'm</option>
                                                                     <option value="2">foiz</option>
                                                                 </select>
                                                             </div>
-                                                            <div class="form-group">
+                                                            <div class="form-group mb-1">
                                                                 <input type="number" name="discount_val" class="form-control discount_val d-none" value="" placeholder="Chegirmani kiriting!">
                                                                 <div class="valid-feedback discount-val-error text-danger">
                                                                     Chegirmani kiriting!
                                                                 </div>
                                                             </div>
 
-                                                            <div class="form-group">
+                                                            <div class="form-group mb-1">
                                                                 <button type="submit" class="btn btn-success btn-block">Saqlash</button>
                                                             </div>
                                                         </form>
+                                                        <p class="text-danger text-center js_msg mb-1"></p>
                                                     </div>
                                                     <div class="modal-footer mt-0">
                                                         <button type="button" class="btn btn-secondary btn-square" data-dismiss="modal">Bekor qilish</button>
@@ -399,9 +409,10 @@
                                                                         <label for="status{{ $s['id'] }}">Maqomi</label>
                                                                         <select class="form-control" id="status{{ $s['id'] }}" name="status">
                                                                             <option>---</option>
-                                                                            <option value="1" @if($s['status'] == 1) selected @endif>Ynagi</option>
+                                                                            <option value="1" @if($s['status'] == 1) selected @endif>Yangi</option>
                                                                             <option value="2" @if($s['status'] == 2) selected @endif>O'qiyotgan</option>
                                                                             <option value="3" @if($s['status'] == 3) selected @endif>Bitirgan</option>
+                                                                            <option value="0" @if($s['status'] == 0) selected @endif>O'qimaydigan</option>
                                                                         </select>
                                                                     </div>
                                                                 </div>
@@ -431,4 +442,5 @@
             </div>
         </div>
     </div>
+
 @endsection

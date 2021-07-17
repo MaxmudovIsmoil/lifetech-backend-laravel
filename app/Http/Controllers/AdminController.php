@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -17,9 +18,23 @@ class AdminController extends Controller
      */
     public function index()
     {
-        $title = "Admin page";
+        $students_new = DB::table('users')
+            ->where(array('utype' => 'student', 'status' => 1))
+            ->count();
 
-        return view('admin.index', compact('title'));
+        $students_active = DB::table('users')
+            ->where(array('utype' => 'student', 'status' => 2))
+            ->count();
+
+        $groups_new = DB::table('groups')
+            ->where('status', 1)
+            ->count();
+
+        $groups_active = DB::table('groups')
+            ->where('status', 2)
+            ->count();
+
+        return view('admin.index', compact( 'students_new', 'students_active', 'groups_new', 'groups_active'));
     }
 
     /**

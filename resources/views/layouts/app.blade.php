@@ -89,7 +89,7 @@
             </a>
         </li>
         <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link @if(Request::segment(1) == 'expenses') active @endif" href="#expenses">
+            <a class="c-sidebar-nav-link @if(Request::segment(1) == 'report') active @endif" href="{{ route('report.index') }}">
                 <svg class="c-sidebar-nav-icon">
                     <use xlink:href="{{ asset('icons/sprites/free.svg#cil-bar-chart') }}"></use>
                 </svg>

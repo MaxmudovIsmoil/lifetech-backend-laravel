@@ -1,4 +1,5 @@
 
+
 function formatDate(date) {
     var d = new Date(date),
         minutes = '' + d.getMinutes(),
@@ -51,19 +52,20 @@ function StudentPayments(student_payments, payment_detalies)
           '<tbody>\n';
 
     $.each( student_payments, function( key, value ) {
-
-        let qarz  = value.total*1 - (value.discount*1 + payment_detalies[value.id]*1);
-        if (qarz > 0) {
-            qarz = "-"+qarz;
+        if (value.month) {
+            let qarz = value.total * 1 - (value.discount * 1 + payment_detalies[value.id] * 1);
+            if (qarz > 0) {
+                qarz = "-" + qarz;
+            }
+            sp += '<tr>\n' +
+                '   <td class="text-center">' + value.month + '</td>\n' +
+                '   <td class="text-center">' + formatDate(value.created_at) + '</td>\n' +
+                '   <td class="text-center">' + value.total + '</td>\n' +
+                '   <td class="text-center">' + value.discount + '</td>\n' +
+                '   <td class="text-center">' + payment_detalies[value.id] + '</td>\n' +
+                '   <td class="text-center text-danger js_student_lend" data-td_last_month="'+value.month+'" data-payment_id=' + value.id + '>' + qarz + '</td>\n' +
+                '</tr>';
         }
-        sp += '<tr>\n' +
-              '   <td class="text-center">' + value.month + '</td>\n' +
-              '   <td class="text-center">' + formatDate(value.created_at) + '</td>\n' +
-              '   <td class="text-center">' + value.total + '</td>\n' +
-              '   <td class="text-center">' + value.discount + '</td>\n' +
-              '   <td class="text-center">' + payment_detalies[value.id] + '</td>\n' +
-              '   <td class="text-center text-danger js_student_lend" data-payment_id='+value.id+'>' + qarz + '</td>\n' +
-              '</tr>';
     });
         sp +='</tbody>';
     return sp;
@@ -240,7 +242,13 @@ $(document).ready(function () {
         let form = $(this).closest('.js_student_payment_in_group_form_modal')
         form.find('.js_last_payment_id').val(lend.data('payment_id'))
         form.find('.js_last_lend').val(lend.html())
+        form.find('.js_td_last_month').val(lend.data('td_last_month'))
+        if ( Math.abs(lend.html()) ) {
+            form.find('.paid').attr('max', Math.abs(lend.html()))
+        }
+
     });
+
 
     /** discount type **/
     $('.discount_type').on('change', function(e) {
@@ -273,13 +281,43 @@ $(document).ready(function () {
 
         let url = $(this).attr('action')
 
+        let modal_body = $(this).closest('.modal-body');
+        let table_tr = modal_body.find('.js_student_payment_table tbody tr');
+        let last_tr_first_td = modal_body.find('.js_student_payment_table tbody tr').last().find('td').first().html();
+
+        let month = $(this).find('.js_student_payment_month').val();
+
         $.ajax({
             url: url,
             type: 'POST',
             dataType: "json",
             data: $(this).serialize(),
             success: (response) => {
-                console.log(response)
+
+               if (response.msg) {
+                   $(this).siblings('.js_msg').html(response.msg)
+               }
+
+                    // keyingi oy uchun yangi to'lov qilish
+                    // if (month > last_tr_first_td) {
+                    //
+                    //     let qarz = response.payment.total * 1 - (response.payment.discount * 1 + response.payment_detailes.paid * 1);
+                    //     if (qarz > 0) {
+                    //         qarz = "-" + qarz;
+                    //     }
+                    //     table_tr.after('<tr>\n' +
+                    //         '   <td class="text-center">' + response.payment.month + '</td>\n' +
+                    //         '   <td class="text-center">' + formatDate(response.payment.created_at) + '</td>\n' +
+                    //         '   <td class="text-center">' + response.payment.total + '</td>\n' +
+                    //         '   <td class="text-center">' + response.payment.discount + '</td>\n' +
+                    //         '   <td class="text-center">' + response.payment_detailes.paid + '</td>\n' +
+                    //         '   <td class="text-center text-danger js_student_lend" data-td_last_month="'+response.payment.month+'" data-payment_id=' + response.payment.id + '>' + qarz + '</td>\n' +
+                    //         '</tr>');
+                    //     $(this).find("input, select").val("");
+                    // }
+               if (response.payment) {
+                   location.reload()
+               }
             },
             error: (response) => {
                 console.log(response)

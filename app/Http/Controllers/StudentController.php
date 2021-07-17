@@ -30,6 +30,8 @@ class StudentController extends Controller
         $student = DB::table('users')->where(array('utype' => 'student', 'status' => $id))->get();
         $i = 1;
 
+        $advertising = DB::table('advertising')->get();
+
         $course = Course::all();
 
         $students = array();
@@ -50,7 +52,7 @@ class StudentController extends Controller
 
         }
 
-        return view('student.index', compact('students', 'course', 'i'));
+        return view('student.index', compact('students', 'course', 'i', 'advertising'));
     }
 
     /**
@@ -213,14 +215,25 @@ class StudentController extends Controller
             ->where('g.status','2')
             ->get();
 
+        if ($student_payments->count() == 0) {
+            $student_payments = DB::table('group_students AS gs')
+                ->leftJoin('groups AS g', 'g.id' ,'=', 'gs.group_id')
+                ->leftJoin('courses AS c', 'c.id' ,'=', 'g.course_id')
+                ->select('c.name AS cname', 'c.price AS cprice', 'c.month AS cmonth', 'g.name AS gname', 'g.status AS gstatus')
+                ->where('gs.student_id', $student_id)
+                ->where('gs.group_id', $group_id)
+                ->where('g.status','2')
+                ->get();
+        }
+
         $student_payment_detalies = DB::table('payments AS p')
             ->leftJoin('payment_detalies AS pd', 'pd.payment_id', '=','p.id')
             ->select( 'pd.payment_id', DB::raw('SUM(pd.paid) as paid'))
             ->groupBy('pd.payment_id')
             ->get();
 
-        $student_payment_detalies_arr = array();
 
+        $student_payment_detalies_arr = array();
         foreach($student_payment_detalies as $val) {
             $student_payment_detalies_arr[$val->payment_id] = $val->paid;
         }
@@ -255,37 +268,51 @@ class StudentController extends Controller
         try {
             if ($request->last_lend >= 0) {
 
-                $payment = Payment::create([
-                    'group_id' => $request->group_id,
-                    'student_id' => $id,
-                    'total' => $request->total,
-                    'month' => $request->month,
-                    'discount' => $discount,
-                    'discount_type' => $request->discount_type,
-                    'discount_val' => ($request->discount_val) ? $request->discount_val : '',
-                ]);
-                $payment_id = $payment->id;
+                if ($request->td_last_month !== $request->month) {
+
+                    $payment = Payment::create([
+                        'group_id' => $request->group_id,
+                        'student_id' => $id,
+                        'total' => $request->total,
+                        'month' => $request->month,
+                        'discount' => $discount,
+                        'discount_type' => $request->discount_type,
+                        'discount_val' => ($request->discount_val) ? $request->discount_val : '',
+                    ]);
+                    $payment_id = $payment->id;
+                }
+                else {
+                    return response()->json([
+                        'msg' => "O'quvchi bu oy uchun to'lov qilgan.",
+                    ]);
+                }
             }
             else{
                 $payment_id = $request->last_payment_id;
 
-                $paymentLast = Payment::findOrFail($payment_id);
-                $paymentLast->fill([
+                $payment = Payment::findOrFail($payment_id);
+                $payment->fill([
                     'discount' => $discount,
                     'discount_type' => $request->discount_type,
                     'discount_val' => ($request->discount_val) ? $request->discount_val : '',
                 ]);
-                $paymentLast->save();
+                $payment->save();
             }
 
-            $payment_detailes = PaymentDetalies::create([
-                'payment_id'    => $payment_id,
-                'paid'          => $request->paid,
-                'payment_type'  => $request->payment_type,
+
+            if ($payment_id) {
+
+                $payment_detailes = PaymentDetalies::create([
+                    'payment_id' => $payment_id,
+                    'paid' => $request->paid,
+                    'payment_type' => $request->payment_type,
+                ]);
+            }
+
+            return response()->json([
+                'payment' => $payment,
+                'payment_detailes' => $payment_detailes
             ]);
-
-
-            return response()->json(['success' => $payment_detailes]);
         }
         catch (\Exception $exception) {
             return response()->json([$exception]);
