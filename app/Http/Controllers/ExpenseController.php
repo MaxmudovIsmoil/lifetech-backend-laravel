@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ExpenseController extends Controller
 {
@@ -28,9 +29,7 @@ class ExpenseController extends Controller
             ->select('expenses.*', 'costs.name as cname')
             ->get();
 
-        $i = 1;
-
-        return view('expense.index', compact('expense', 'i', 'costs'));
+        return view('expense.index', compact('expense', 'costs'));
     }
 
 
@@ -42,22 +41,31 @@ class ExpenseController extends Controller
      */
     public function store(Request $request)
     {
-        $validate = $request->validate([
-            'name'  => 'string|required',
-            'money'  => 'string|required',
-            'cost_id' => 'string|required',
-        ]);
+        $validation = Validator::make($request->all(), $this->validateData());
 
-        try {
-            Expense::create([
-                'name'  =>  $request->name,
-                'money' =>  $request->money,
-                'comment' =>  '',
-                'cost_id' =>  $request->cost_id
+        if ($validation->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validation->getMessageBag()->toArray()
             ]);
-            return redirect()->route('expense.index');
-        } catch (\Exception $exception) {
-            dd($exception);
+        }
+        else {
+            try {
+                Expense::create([
+                    'name'  =>  $request->name,
+                    'money' =>  $request->money,
+                    'comment' =>  '',
+                    'cost_id' =>  $request->cost_id
+                ]);
+                return response()->json(['success' => true]);
+            }
+            catch (\Exception $exception) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $exception
+                ]);
+            }
+
         }
 
     }
@@ -72,16 +80,43 @@ class ExpenseController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $course = Expense::findOrFail($id);
-        $course->fill([
-            'name'  => $request->name,
-            'money' => $request->money,
-            'cost_id' => $request->cost_id,
-        ]);
-        $course->save();
+        $validation = Validator::make($request->all(), $this->validateData());
 
-        return redirect()->route('expense.index');
+        if ($validation->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validation->getMessageBag()->toArray()
+            ]);
+        }
+        else {
+            try {
+                $course = Expense::findOrFail($id);
+                $course->fill([
+                    'name'  => $request->name,
+                    'money' => $request->money,
+                    'cost_id' => $request->cost_id,
+                ]);
+                $course->save();
 
+                return response()->json(['success' => true]);
+            }
+            catch (\Exception $exception) {
+                return response([
+                    'success' => false,
+                    'errors' => $exception
+                ]);
+            }
+        }
+
+    }
+
+    public function validateData()
+    {
+        return [
+            'name'      => 'required',
+            'money'     => 'required',
+            'cost_id'   => 'required',
+        ];
     }
 
     /**

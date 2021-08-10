@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class CourseController extends Controller
 {
@@ -34,46 +36,37 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
-        $validate = $request->validate([
-            'name'  => 'string|required',
-            'price'  => 'string|required',
-            'month' => 'string|required',
-        ]);
+        $rules = $this->validateData();
+        $error = Validator::make($request->all(), $rules);
 
-        try {
-            Course::create([
-                'name'  =>  $request->name,
-                'price' =>  $request->price,
-                'month' =>  $request->month
-            ]);
-            return redirect()->route('course.index');
-        } catch (\Exception $exception) {
-            dd($exception);
+        if ($error->fails()) {
+            return response()->json(array(
+                'success' => false,
+                'errors' => $error->getMessageBag()->toArray()
+            ));
         }
+        else {
 
+            try {
+                Course::create([
+                    'name'  =>  $request->name,
+                    'price' =>  $request->price,
+                    'month' =>  $request->month
+                ]);
+                return response()->json([
+                    'success' => true,
+                ]);
+            } catch (\Exception $exception) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $exception
+                ]);
+            }
+
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -84,19 +77,39 @@ class CourseController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $rules = $this->validateData();
+        $error = Validator::make($request->all(), $rules);
 
-        $course = Course::findOrFail($id);
-        $course->fill([
-            'name'  => $request->name,
-            'price' => $request->price,
-            'month' => $request->month,
-        ]);
-        $course->save();
+        if ($error->fails()) {
+            return response()->json(array(
+                'success' => false,
+                'errors' => $error->getMessageBag()->toArray()
+            ));
+        }
+        else {
+            $course = Course::findOrFail($id);
+            $course->fill([
+                'name'  => $request->name,
+                'price' => $request->price,
+                'month' => $request->month,
+            ]);
+            $course->save();
 
-        return redirect()->route('course.index');
+            return response()->json([
+                'success' => true,
+            ]);
+        }
 
     }
 
+    public function validateData()
+    {
+        return array(
+            'name'  => 'required',
+            'price' => 'required',
+            'month' => 'required',
+        );
+    }
     /**
      * Remove the specified resource from storage.
      *

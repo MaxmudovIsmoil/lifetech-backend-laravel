@@ -2,7 +2,6 @@
 /* Course */
 .courses{
     overflow-y: scroll;
-    /*width: 90%;*/
     height: 180px;
 }
 
@@ -10,12 +9,14 @@
 .groups .btn-group .btn{
     border-left: 1px solid gray;
 }
+
 .students .btn-group .btn:first-child,
 .groups .btn-group .btn:first-child{
     border-left: none;
 }
 
-.div-student-payments{
-    overflow-y: scroll;
-    height: 150px;
+.div-student-payments {
+    overflow-y: scroll !important;
+    height: 266px;
 }
+

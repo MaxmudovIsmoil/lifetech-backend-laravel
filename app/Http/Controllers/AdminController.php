@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,23 +19,42 @@ class AdminController extends Controller
      */
     public function index()
     {
-        $students_new = DB::table('users')
-            ->where(array('utype' => 'student', 'status' => 1))
-            ->count();
+        $title = "Admin page";
 
-        $students_active = DB::table('users')
-            ->where(array('utype' => 'student', 'status' => 2))
-            ->count();
+        $students = DB::table('users')->where(array('utype' => 'student'))->get();
 
-        $groups_new = DB::table('groups')
-            ->where('status', 1)
-            ->count();
+        $students_new = DB::table('users')->where(array('utype' => 'student', 'status' => 1))->count();
 
-        $groups_active = DB::table('groups')
-            ->where('status', 2)
-            ->count();
+        $students_active = DB::table('users')->where(array('utype' => 'student', 'status' => 2))->count();
 
-        return view('admin.index', compact( 'students_new', 'students_active', 'groups_new', 'groups_active'));
+        $students_graduated = DB::table('users')->where(array('utype' => 'student', 'status' => 3))->count();
+
+        $students_count = array(
+            'all' => 0,
+            'new' => 0,
+            'active' => 0,
+            'graduated' => 0,
+            'no_study' => 0,
+        );
+
+        foreach($students as $s) {
+            $students_count['all']++;
+
+            if ($s->status == 1)
+                $students_count['new']++;
+
+            if ($s->status == 2)
+                $students_count['active']++;
+
+            if ($s->status == 3)
+                $students_count['graduated']++;
+
+            if ($s->status == 0)
+                $students_count['no_study']++;
+
+        }
+
+        return view('admin.index', compact('title', 'students_count'));
     }
 
     /**

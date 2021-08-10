@@ -37,6 +37,7 @@ class TeacherController extends Controller
             $teachers[$k]['firstname'] = $t->firstname;
             $teachers[$k]['lastname'] = $t->lastname;
             $teachers[$k]['phone'] = $t->phone;
+            $teachers[$k]['phone2'] = $t->phone2;
             $teachers[$k]['address'] = $t->address;
             $teachers[$k]['born'] = $t->born;
             $teachers[$k]['status'] = $t->status;
@@ -59,64 +60,64 @@ class TeacherController extends Controller
      */
     public function store(Request $request)
     {
-        $validation =  Validator::make($request->all(), [
-            'firstname' => ['required', 'string', 'max:255'],
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'password'  => ['required', 'min:6'],
-            'password_confirm' => ['required_with:password', 'same:password', 'min:6'],
-            'lastname'  => ['required','string'],
-            'phone'     => 'required',
-            'address'   => 'required',
-            'born'   => 'required',
-            'company'   => 'required',
-        ]);
+        $validation = Validator::make($request->all(), $this->validateData());
 
-        if (!$validation->passes()) {
+        if ($validation->fails()) {
                 return response()->json([
-                    'status' => 0,
-                    'error' => $validation->errors()->all(),
+                    'success' => false,
+                    'errors' => $validation->getMessageBag()->toArray()
                 ]);
         }
+        else {
+            $course_ids = '';
+            $courses = Course::all();
+            $t = false;
+            foreach($courses as $c) {
+                if($request->post('course_'.$c->id) == true){
+                    $course_ids .= $request->post('course_'.$c->id).";";
+                    $t = true;
+                }
+            }
+            if (!$t) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['course' => 'Kursni tanlneg']
+                ]);
+            }
 
-        $course_ids = '';
-        $courses = Course::all();
-        foreach($courses as $c) {
-            if($request->post('course_'.$c->id) == true){
-                $course_ids .= $request->post('course_'.$c->id).";";
+            $course_ids = substr($course_ids, 0, -1);
+
+            try {
+                User::create([
+                    'username'  => $request->username,
+                    'password'  => Hash::make($request->password),
+                    'token'     => $request->_token,
+                    'firstname' => $request->firstname,
+                    'lastname'  => $request->lastname,
+                    'phone'     => "+998".$request->phone,
+                    'phone2'     => "",
+                    'address'   => $request->address,
+                    'born'      => isset($request->born) ? $request->born : "",
+                    'utype'     => "teacher",
+                    'email'     => "teacher".time()."@gmail.com",
+                    'status'    => '1',
+                    'course_ids' => $course_ids,
+                    'gender'    => isset($request->gender) ? $request->gender : "",
+                    'advertising' => isset($request->advertising) ? $request->advertising : "",
+                    'company'   => isset($request->company) ? $request->company : "",
+                ]);
+
+                return response()->json(['success' => true]);
+
+            } catch (\Exception $exception) {
+                return response()->json([
+                    'status' => false,
+                    'warning' => $exception,
+                ]);
             }
         }
-        $course_ids = substr($course_ids, 0, -1);
 
-        try {
-            User::create([
-                'username'  => $request->username,
-                'password'  => Hash::make($request->password),
-                'token'     => $request->_token,
-                'firstname' => $request->firstname,
-                'lastname'  => $request->lastname,
-                'phone'     => "+998".$request->phone,
-                'address'   => $request->address,
-                'born'      => isset($request->born) ? $request->born : "",
-                'utype'     => "teacher",
-                'email'     => "teacher".time()."@gmail.com",
-                'status'    => '1',
-                'course_ids' => $course_ids,
-                'gender'    => isset($request->gender) ? $request->gender : "",
-                'advertising' => isset($request->advertising) ? $request->advertising : "",
-                'company'   => isset($request->company) ? $request->company : "",
-            ]);
 
-            return response()->json([
-                'status' => 1,
-                'message' => 'bazaga muofaqiyatli yozildi',
-            ]);
-
-        } catch (\Exception $exception) {
-            return response()->json([
-                'status' => 2,
-                'message' => $exception,
-            ]);
-        }
     }
 
     /**
@@ -140,97 +141,126 @@ class TeacherController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $course_ids = '';
+        $courses = Course::all();
+        $t = false;
+        foreach($courses as $c) {
+            if($request->post('course_'.$c->id) == true){
+                $course_ids .= $request->post('course_'.$c->id).";";
+                $t = true;
+            }
+        }
+        if (!$t) {
+            return response()->json(['success' => false, 'errors'=> ['course' => 'Kursni tanlang']]);
+        }
+
+        $course_ids = substr($course_ids, 0, -1);
+
         if ($request->password) {
 
             $validation =  Validator::make($request->all(), [
-                'password'  => ['required', 'min:6'],
-                'password_confirm' => ['required_with:password', 'same:password', 'min:6'],
-                'firstname' => ['required', 'string', 'max:255'],
-                'lastname'  => ['required','string'],
+                'firstname' => 'required',
+                'lastname'  => 'required',
                 'phone'     => 'required',
                 'address'   => 'required',
-                'born'   => 'required',
+                'born'      => 'required',
                 'company'   => 'required',
+                'password'  => ['required', 'min:5'],
+                'password_confirm' => ['required_with:password', 'same:password', 'min:5'],
             ]);
 
-            if (!$validation->passes()) {
+            if ($validation->fails()) {
                 return response()->json([
-                    'status' => 0,
-                    'error' => $validation->errors()->all(),
+                    'success' => false,
+                    'errors' => $validation->getMessageBag()->toArray()
                 ]);
             }
+            else {
+                try {
+                    $studentsOnce = User::findOrFail($id);
+                    $studentsOnce->fill([
+                        'password'  => isset($request->password) ? Hash::make($request->password) : null,
+                        'firstname' => $request->firstname,
+                        'lastname'  => $request->lastname,
+                        'phone'     => "+998".$request->phone,
+                        'address'   => $request->address,
+                        'gender'    => $request->gender,
+                        'born'      => isset($request->born) ? $request->born : '',
+                        'status'    => isset($request->status) ? $request->status : '1',
+                        'company'   => isset($request->company) ? $request->company : '',
+                        'advertising'=> isset($request->advertising) ? $request->advertising : '',
+                        'course_ids'=> $course_ids,
+                    ]);
+                    $studentsOnce->save();
+                    return response()->json(['success' => true]);
 
-            $course_ids = '';
-            $courses = Course::all();
-            foreach($courses as $c) {
-                if($request->post('course_'.$c->id) == true){
-                    $course_ids .= $request->post('course_'.$c->id).";";
+                }
+                catch (\Exception $exception) {
+                    return response()->json([
+                        'success' => false,
+                        'warning' => $exception,
+                    ]);
                 }
             }
-            $course_ids = substr($course_ids, 0, -1);
 
-
-            $studentsOnce = User::findOrFail($id);
-            $studentsOnce->fill([
-                'password'  => isset($request->password) ? Hash::make($request->password) : null,
-                'firstname' => $request->firstname,
-                'lastname'  => $request->lastname,
-                'phone'     => "+998".$request->phone,
-                'address'   => $request->address,
-                'gender'    => $request->gender,
-                'born'      => isset($request->born) ? $request->born : '',
-                'status'    => isset($request->status) ? $request->status : '1',
-                'company'   => isset($request->company) ? $request->company : '',
-                'advertising'=> isset($request->advertising) ? $request->advertising : '',
-                'course_ids'=> $course_ids,
-            ]);
-            $studentsOnce->save();
         }
         else {
 
             $validation =  Validator::make($request->all(), [
-                'firstname' => ['required', 'string', 'max:255'],
-                'lastname'  => ['required','string'],
+                'firstname' => 'required',
+                'lastname'  => 'required',
                 'phone'     => 'required',
                 'address'   => 'required',
-                'born'   => 'required',
+                'born'      => 'required',
                 'company'   => 'required',
             ]);
 
-            if (!$validation->passes()) {
+            if ($validation->fails()) {
                 return response()->json([
-                    'status' => 0,
-                    'error' => $validation->errors()->all(),
+                    'success' => false,
+                    'errors' => $validation->getMessageBag()->toArray()
                 ]);
             }
 
-            $course_ids = '';
-            $courses = Course::all();
-            foreach($courses as $c) {
-                if($request->post('course_'.$c->id) == true){
-                    $course_ids .= $request->post('course_'.$c->id).";";
-                }
+            try {
+                $studentsOnce = User::findOrFail($id);
+                $studentsOnce->fill([
+                    'firstname' => $request->firstname,
+                    'lastname'  => $request->lastname,
+                    'phone'     => "+998".$request->phone,
+                    'address'   => $request->address,
+                    'gender'    => $request->gender,
+                    'born'      => isset($request->born) ? $request->born : '',
+                    'status'    => isset($request->status) ? $request->status : '1',
+                    'company'   => isset($request->company) ? $request->company : '',
+                    'advertising'=> isset($request->advertising) ? $request->advertising : '',
+                    'course_ids'=> $course_ids,
+                ]);
+                $studentsOnce->save();
+                return response()->json(['success' => true]);
+
+            } catch (\Exception $exception) {
+                return response()->json([
+                    'success' => false,
+                    'warning' => $exception,
+                ]);
             }
-            $course_ids = substr($course_ids, 0, -1);
-
-
-            $studentsOnce = User::findOrFail($id);
-            $studentsOnce->fill([
-                'firstname' => $request->firstname,
-                'lastname'  => $request->lastname,
-                'phone'     => "+998".$request->phone,
-                'address'   => $request->address,
-                'gender'    => $request->gender,
-                'born'      => isset($request->born) ? $request->born : '',
-                'status'    => isset($request->status) ? $request->status : '1',
-                'company'   => isset($request->company) ? $request->company : '',
-                'advertising'=> isset($request->advertising) ? $request->advertising : '',
-                'course_ids'=> $course_ids,
-            ]);
-            $studentsOnce->save();
         }
+    }
 
-        return response()->json(['status' => 'success', 'id' => $id]);
+    public function validateData()
+    {
+        return [
+            'firstname' => 'required',
+            'lastname'  => 'required',
+            'phone'     => 'required',
+            'address'   => 'required',
+            'born'      => 'required',
+            'company'   => 'required',
+            'username'  => ['required', 'unique:users'],
+            'password'  => ['required', 'min:5'],
+            'password_confirm' => ['required_with:password', 'same:password', 'min:5'],
+        ];
     }
 
     /**

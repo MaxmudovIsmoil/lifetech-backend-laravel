@@ -1,4 +1,4 @@
-{{-- catalog  --}}
+{{-- Delete Modal  --}}
 <div class="modal fade" id="delete_notify" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="delete-model-title" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -14,16 +14,53 @@
                 </p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-square" data-dismiss="modal">Yo'q</button>
                 <form id="js_modal_delete_form" method="POST">
                     @csrf
                     {{ method_field('DELETE') }}
                     <input type="submit" value="Xa" class="btn btn-danger btn-square">
                 </form>
+                <button type="button" class="btn btn-secondary btn-square" data-dismiss="modal">Yo'q</button>
             </div>
         </div>
     </div>
 </div>
+
+
+{{-- Student payment delete modal --}}
+<div class="modal fade" id="delete_student_payment" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="delete-model-title" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content modal-sm" style="background: #ffe7e9;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="delete-model-title">To'lovni o'chirish</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-left">
+                <p style="background: #f8d7da; color: darkred; padding: 5px 7px; margin-bottom: 0px; border-radius: 5px;line-height: 1.5;">
+                    Siz rosdan ham o'chirmoqchimisiz ?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <form id="js_student_payment_delete_modal_form" method="POST">
+                    @csrf
+                    {{ method_field('DELETE') }}
+                    <input type="submit" value="Xa" class="btn btn-danger btn-sm">
+                </form>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Yo'q</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
 
 {{-- Mahsulot qolmaganda --}}
 <div class="modal fade" id="warn_model" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-modal="true">

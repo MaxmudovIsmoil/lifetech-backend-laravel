@@ -5,16 +5,13 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="card report">
-                <div class="btn-group btn-square">
-                    <a href="{{ route('student.index',[1]) }}" class="btn btn-square @if(Request::segment(2) == 1) btn-primary @else btn-secondary @endif">Pul bo'yicha</a>
-                    <a href="{{route('student.index',[2])  }}" class="btn btn-square @if(Request::segment(2) == 2) btn-primary @else btn-secondary @endif">Guruhlar bo'yicha</a>
-                </div>
                 <div class="card-body" style="position: relative;">
                     <form action="" method="POST" class="d-flex justify-content-around">
                         <input type="date" name="start_date" class="form-control mr-4" placeholder="Boshlanish sana" required />
                         <input type="date" name="end_date"  class="form-control mr-4" placeholder="Tugash sana" required />
                         <input type="submit" name="see" class="btn btn-primary" value="Ko'rish">
                     </form>
+
 
                     <div class="kirim mt-3">
                         <h4>Kirimlar</h4>

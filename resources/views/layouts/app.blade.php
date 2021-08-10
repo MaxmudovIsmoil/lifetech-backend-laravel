@@ -193,15 +193,28 @@
 <script src="{{ asset('js/main.js') }}"></script>
 <script src="{{ asset('js/datatable.js') }}"></script>
 <script src="{{ asset('js/jquery.maskedinput.min.js') }}"></script>
+{{-- number format --}}
+<script src="{{ asset('js/numeral.js') }}"></script>
 <script src="{{ asset('js/form-validation.js') }}"></script>
 <script src="{{ asset('js/jquery.multi-select.js') }}"></script>
 
 <script src="{{ asset('js/bootstrap-multiselect.js') }}"></script>
 
-
 <script src="{{ asset('js/functionDelete.js') }}"></script>
 <script src="{{ asset('js/functionTeacher.js') }}"></script>
 <script src="{{ asset('js/functions.js') }}"></script>
+
+@if(Request::segment(1) == 'course')
+
+    <script src="{{ asset('js/functionCourse.js') }}"></script>
+
+@endif
+
+@if(Request::segment(1) == 'student')
+
+    <script src="{{ asset('js/functionStudent.js') }}"></script>
+
+@endif
 
 </body>
 </html>

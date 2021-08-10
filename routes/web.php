@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-//use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\StudentController;
@@ -26,7 +26,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
-//Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::get('/admin', [AdminController::class, 'index'])->name('admin');
 
@@ -82,6 +82,8 @@ Route::prefix('student')->group(function () {
     Route::get('/student_payments_in_group/{student_id}/{group_id}', [StudentController::class, 'student_payments_in_group'])->name('student.student_payments_in_group');
 
     Route::post('/student_payment/{id}', [StudentController::class, 'student_payment'])->name('student.student_payment');
+
+    Route::delete('/student_payment_delete/{id}', [StudentController::class, 'student_payment_delete'])->name('student.student_payment_delete');
 
 });
 /**###################################### ./STUDENT ############################################**/

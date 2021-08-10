@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\GroupStudent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class GroupController extends Controller
 {
@@ -93,41 +94,56 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
-        $validate = $request->validate([
-            'course_id'  => 'required',
-            'teacher_id' => 'required',
-            'name'       => 'string|required',
-            'time'       => 'required',
-            'type'      => 'string|required',
-        ]);
+        $validation = Validator::make($request->all(), $this->validateData());
 
-        $days = array('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday');
-
-        $dayStr = '';
-        foreach($days as $v) {
-            if ($request->$v)
-                $dayStr .= $request->$v.";";
-            else
-                $dayStr .= '0;';
-        }
-        $day = substr($dayStr, 0, -1);
-
-
-        try {
-            Group::create([
-                'course_id' =>  $request->course_id,
-                'teacher_id'=>  $request->teacher_id,
-                'name'      =>  $request->name,
-                'days'      =>  $day,
-                'time'      =>  $request->time,
-                'type'      =>  $request->type,
-                'status'    => 1
+        if ($validation->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validation->getMessageBag()->toArray()
             ]);
-            return redirect()->route('group.index',[1]);
-        } catch (\Exception $exception) {
-            dd($exception);
         }
+        else {
+            $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
+            $dayStr = '';
+            $t = false;
+            foreach($days as $v) {
+                if ($request->$v) {
+                    $dayStr .= $request->$v . ";";
+                    $t = true;
+                } else
+                    $dayStr .= '0;';
+            }
+
+            if (!$t) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => ['days' => 'Kunlarni tanlang']
+                ]);
+            }
+            $day = substr($dayStr, 0, -1);
+
+            try {
+                Group::create([
+                    'course_id' =>  $request->course_id,
+                    'teacher_id'=>  $request->teacher_id,
+                    'name'      =>  $request->name,
+                    'days'      =>  $day,
+                    'time'      =>  $request->time,
+                    'type'      =>  $request->type,
+                    'status'    => 1
+                ]);
+                return response()->json([
+                    'success' => true,
+                ]);
+            } catch (\Exception $exception) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $exception
+                ]);
+            }
+
+        }
     }
 
 
@@ -141,68 +157,98 @@ class GroupController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validate = $request->validate([
-            'course_id'  => 'required',
-            'teacher_id' => 'required',
-            'name'       => 'string|required',
-            'time'       => 'required',
-            'type'      => 'string|required',
-        ]);
+        $validation = Validator::make($request->all(), $this->validateData());
 
-        $days = array('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday');
-
-        $dayStr = '';
-        foreach($days as $v) {
-            if ($request->$v)
-                $dayStr .= $request->$v.";";
-            else
-                $dayStr .= '0;';
+        if ($validation->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validation->getMessageBag()->toArray()
+            ]);
         }
-        $day = substr($dayStr, 0, -1);
+        else {
+            $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
-        /** Guruh yopilganda guruhga tegishli studentlarni course_id larini o'chirish **/
-        if ($request->status == 3) {
-            $students_ids = DB::table('group_students AS gs')
-                            ->leftJoin('users AS u','u.id', '=', 'gs.student_id')
-                            ->where('gs.group_id', $id)
-                            ->get();
-
-            foreach($students_ids as $k => $v) {
-
-                $cids = array();
-                foreach(explode(';', $v->course_ids) as $cv) {
-                    if($cv === $request->course_id)
-                        unset($cv);
-                    else
-                        $cids[] = $cv;
+            $dayStr = '';
+            $t = false;
+            foreach($days as $v) {
+                if ($request->$v) {
+                    $dayStr .= $request->$v.";";
+                    $t = true;
                 }
-
-                $student = User::findOrFail($v->student_id);
-                $student->fill([
-                    'course_ids' => implode(';', $cids),
-                    'status'    => 3,
+                else
+                    $dayStr .= '0;';
+            }
+            if (!$t) {
+                return response()->json([
+                    'success'=> false,
+                    'errors' => ['days' => 'Kunlarni tanlang!']
                 ]);
-                $student->save();
+            }
+            $day = substr($dayStr, 0, -1);
 
-            } // foreach
-        } // if
+            /** Guruh yopilganda guruhga tegishli studentlarni course_id larini o'chirish **/
+            if ($request->status == 3) {
+                $students_ids = DB::table('group_students AS gs')
+                    ->leftJoin('users AS u','u.id', '=', 'gs.student_id')
+                    ->where('gs.group_id', $id)
+                    ->get();
 
-        $course = Group::findOrFail($id);
-        $course->fill([
-            'name'      => $request->name,
-            'course_id' => $request->course_id,
-            'teacher_id'=> $request->teacher_id,
-            'days'      => $day,
-            'time' => ($request->time) ? $request->time : '',
-            'type' => $request->type,
-            'status' => $request->status,
-        ]);
-        $course->save();
+                foreach($students_ids as $k => $v) {
 
-        return redirect()->route('group.index', [$request->status]);
+                    $cids = array();
+                    foreach(explode(';', $v->course_ids) as $cv) {
+                        if($cv === $request->course_id)
+                            unset($cv);
+                        else
+                            $cids[] = $cv;
+                    }
+
+                    $student = User::findOrFail($v->student_id);
+                    $student->fill([
+                        'course_ids' => implode(';', $cids),
+                        'status'    => 3,
+                    ]);
+                    $student->save();
+
+                } // foreach
+            } // if
+
+            try {
+                $course = Group::findOrFail($id);
+                $course->fill([
+                    'name'      => $request->name,
+                    'course_id' => $request->course_id,
+                    'teacher_id'=> $request->teacher_id,
+                    'days'      => $day,
+                    'time' => ($request->time) ? $request->time : '',
+                    'type' => $request->type,
+                    'status' => $request->status,
+                ]);
+                $course->save();
+                return response()->json([
+                    'success' => true
+                ]);
+
+            } catch (\Exception $exception) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $exception
+                ]);
+            }
+        }
 
     }
 
+    public function validateData()
+    {
+        return [
+            'course_id' => 'required',
+            'teacher_id'=> 'required',
+            'name'      => 'required',
+            'time'      => 'required',
+            'type'      => 'required',
+        ];
+    }
     /**
      * Remove the specified resource from storage.
      *
