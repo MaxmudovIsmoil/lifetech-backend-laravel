@@ -32,7 +32,6 @@ class StudentController extends Controller
                     ->where(array('utype' => 'student', 'status' => $id))
                     ->orderBy('created_at', 'DESC')
                     ->get();
-        $i = 1;
 
 
         $advertising = DB::table('advertising')->get();
@@ -58,7 +57,7 @@ class StudentController extends Controller
 
         }
 
-        return view('student.index', compact('students', 'course', 'i', 'advertising'));
+        return view('student.index', compact('students', 'course', 'advertising'));
     }
 
     /**
@@ -371,5 +370,42 @@ class StudentController extends Controller
         $payment->delete();
 
         return response()->json(['payment_id' => $id]);
+    }
+
+
+    /** Test uchun **/
+    public function ajax_student_payments_datatable() {
+
+        $student_payments = DB::table('payments AS p')
+            ->leftJoin('groups AS g', 'g.id' ,'=', 'p.group_id')
+            ->leftJoin('courses AS c', 'c.id' ,'=', 'g.course_id')
+            ->select('c.name AS cname', 'c.price AS cprice', 'c.month AS cmonth', 'g.name AS gname', 'g.status AS gstatus', 'p.*')
+            ->where('p.student_id', 116)
+            ->where('p.group_id', 18)
+            ->where('g.status','2')
+            ->get();
+
+//        $expense_types   = "Student to'lovlari";
+//
+//        $data = array();
+//        foreach ($student_payments as $key => $expens) {
+//            $data[$key]["DT_RowId"] = "expense_row_".$key;
+//            $data[$key][0] = '<div>
+//                                <div class="expense_date">'.date("d.m.Y H:i", 1234312).'</div>
+//                                <div class="expenser">salom</div>
+//                            </div>
+//                    ';
+//            $data[$key][1] = '<div class="js_expense_cell">
+//                                    <div class="js_expense_cell_text">'.number_format(450000, 0, ',', ' ').'</div>
+//                                    <div class="js_expense_cell_input d-none"><input type="text" class="form-control" value="" name="amount[]" id="amount_1" /></div>
+//                                </div>';
+//        }
+
+        return response()->array([
+            'data' => $student_payments
+        ]);
+
+//        $response = array("data" => $data);
+//        echo json_encode($response);
     }
 }

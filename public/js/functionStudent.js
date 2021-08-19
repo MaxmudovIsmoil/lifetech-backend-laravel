@@ -62,8 +62,8 @@ function StudentPayments(student_payments, payment_detalies)
             else if(value.discount_type == 2) {
                 ch = '<td class="text-center">'+value.discount_val+ '% &nbsp&nbsp ' +numeral(value.discount).format('0,0')+'</td>\n'
             }
-            sp += '<tr data-payment_id="'+value.id+'" data-tolov="'+value.total+'" data-tolangan="'+payment_detalies[value.id]+'" data-chegirma="'+value.discount+'" data-qarz="'+q+'">\n' +
-                '   <td class="text-center">' + numeral(value.month).format('0,0') + '</td>\n' +
+            sp += '<tr data-payment_id="'+value.id+'" data-month="'+value.month+'" data-tolov="'+value.total+'" data-tolangan="'+payment_detalies[value.id]+'" data-chegirma="'+value.discount+'" data-qarz="'+q+'">\n' +
+                '   <td class="text-center">' + value.month + '</td>\n' +
                 '   <td class="text-center">' + formatDate(value.created_at) + '</td>\n' +
                 '   <td class="text-center">' + numeral(value.total).format('0,0') + '</td>\n' +
                     ch +
@@ -88,7 +88,7 @@ function StudentPayments(student_payments, payment_detalies)
         }
     });
     if (!t) {
-        sp += '<tr>' +
+        sp += '<tr data-month="0">' +
                 '<td class="text-center" colspan="2"></td>' +
                 '<td class="text-center font-weight-bold">'+numeral(tolovAll).format('0,0')+'</td>' +
                 '<td class="text-center font-weight-bold">'+numeral(chegirmaAll).format('0,0')+'</td>' +
@@ -246,33 +246,6 @@ $(document).ready(function () {
 
 
     /***
-     * add Student in group and update
-     * **/
-    $('.js_add_student_group_modal_from').on( 'submit',  function(e) {
-        e.preventDefault()
-        let url = $(this).attr('action')
-        let formData = new FormData(this);
-
-        let modal = $(this).closest('.modal');
-
-        $.ajax({
-            url: url,
-            type: 'POST',
-            dataType: "json",
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: (response) => {
-                modal.modal('hide')
-            },
-            error: (response) => {
-                console.log(response)
-            }
-        });
-    });
-
-
-    /***
      * Student payments
      * **/
     /** ######################################################################## **/
@@ -350,10 +323,39 @@ $(document).ready(function () {
 
     /** oy tanlanganda qarzdorligi bor o'tgan oydagilarni payment_id, qarzdorlikni olib formafa hidden tipida qo'shish **/
     $('.js_student_payment_month').on('change', function(){
-        console.log($(this).val())
+
         let student_this_lend = $(document).find('.js_student_lend');
         let lend = student_this_lend.eq(($(this).val())-1)
         let form = $(this).closest('.js_student_payment_in_group_form_modal')
+
+        let modal_body = $(this).closest('.modal-body')
+
+        var table_tbody_tr = modal_body.find('.js_student_payment_table_tbody tr')
+
+        // console.log($(table_tbody_tr).first().data('tolangan'))
+        // console.log($(table_tbody_tr).first().data('tolov'))
+        // console.log($(table_tbody_tr).first().data('qarz'))
+        // console.log($(table_tbody_tr).first().data('month'))
+
+        var paid = modal_body.find('input[name="paid"]')
+
+        var change_val = parseInt($(this).val())
+        let t = false
+        $.each( table_tbody_tr, function( key, tr ) {
+
+            if (change_val == $(tr).data('month')) {
+
+                var qarz = $(tr).data('qarz')
+                paid.attr('max', qarz)
+                console.log('qarz: ', qarz)
+            }
+            else {
+                t = true
+            }
+        })
+
+
+
         form.find('.js_last_payment_id').val(lend.data('payment_id'))
         form.find('.js_last_lend').val(lend.html())
         form.find('.js_td_last_month').val(lend.data('td_last_month'))

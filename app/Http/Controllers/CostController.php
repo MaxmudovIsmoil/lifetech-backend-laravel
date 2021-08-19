@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Course;
-use App\Models\Expense;
+
+use App\Models\Cost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class ExpenseController extends Controller
+class CostController extends Controller
 {
     public function __construct()
     {
@@ -20,20 +20,11 @@ class ExpenseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($cost_type)
+    public function index()
     {
         $costs = DB::table('costs')->get();
 
-        if($cost_type == 0)
-            $cost_type = $costs[0]->id;
-
-        $expense = DB::table('expenses')
-            ->leftJoin('costs', 'costs.id', '=', 'expenses.cost_id')
-            ->select('expenses.*', 'costs.name as cname')
-            ->where('cost_id', '=', $cost_type)
-            ->get();
-
-        return view('expense.index', compact('expense', 'costs'));
+        return view('cost.index', compact( 'costs'));
     }
 
 
@@ -56,11 +47,8 @@ class ExpenseController extends Controller
         }
         else {
             try {
-                Expense::create([
+                Cost::create([
                     'name'  =>  $request->name,
-                    'money' =>  $request->money,
-                    'comment' =>  '',
-                    'cost_id' =>  $request->cost_id
                 ]);
                 return response()->json(['success' => true]);
             }
@@ -95,13 +83,11 @@ class ExpenseController extends Controller
         }
         else {
             try {
-                $course = Expense::findOrFail($id);
-                $course->fill([
-                    'name'  => $request->name,
-                    'money' => $request->money,
-                    'cost_id' => $request->cost_id,
+                $cost = Cost::findOrFail($id);
+                $cost->fill([
+                    'name'  => $request->name
                 ]);
-                $course->save();
+                $cost->save();
 
                 return response()->json(['success' => true]);
             }
@@ -120,8 +106,6 @@ class ExpenseController extends Controller
     {
         return [
             'name'      => 'required',
-            'money'     => 'required',
-            'cost_id'   => 'required',
         ];
     }
 
@@ -134,7 +118,7 @@ class ExpenseController extends Controller
      */
     public function destroy($id)
     {
-        $u = Expense::findOrFail($id);
+        $u = Cost::findOrFail($id);
 
         $u->delete();
 

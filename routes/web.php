@@ -8,6 +8,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\CostController;
 use App\Http\Controllers\ReportController;
 /*
 |--------------------------------------------------------------------------
@@ -85,6 +86,7 @@ Route::prefix('student')->group(function () {
 
     Route::delete('/student_payment_delete/{id}', [StudentController::class, 'student_payment_delete'])->name('student.student_payment_delete');
 
+    Route::get('/ajax_student_payments_datatable', [StudentController::class, 'ajax_student_payments_datatable'])->name('student.ajax_student_payments_datatable');
 });
 /**###################################### ./STUDENT ############################################**/
 
@@ -108,10 +110,14 @@ Route::prefix('group')->group(function () {
 /**###################################### ./GROUP ############################################**/
 
 
-/**####################################### GROUP ###########################################**/
+/**####################################### EXPENSE ###########################################**/
 Route::prefix('expense')->group(function () {
 
-    Route::get('/', [ExpenseController::class, 'index'])->name('expense.index');
+    Route::get('/{cost_type}', [ExpenseController::class, 'index'])->name('expense.index')->where('cost_type', '[0-9]+');;
+
+    Route::get('/report', [ExpenseController::class, 'report'])->name('expense.report');
+
+    Route::post('/reportShow', [ExpenseController::class, 'reportShow'])->name('expense.reportShow');
 
     Route::post('/add', [ExpenseController::class, 'store'])->name('expense.store');
 
@@ -122,7 +128,24 @@ Route::prefix('expense')->group(function () {
     Route::delete('/destroy/{id}', [ExpenseController::class, 'destroy'])->name('expense.destroy');
 
 });
-/**###################################### ./GROUP ############################################**/
+/**###################################### ./EXPENSE ############################################**/
+
+
+/**####################################### EXPENSE ###########################################**/
+Route::prefix('cost')->group(function () {
+
+    Route::get('/', [CostController::class, 'index'])->name('cost.index');
+
+    Route::post('/add', [CostController::class, 'store'])->name('cost.store');
+
+    Route::get('/show/{id}', [CostController::class, 'show'])->name('cost.show');
+
+    Route::put('/edit/{id}/update', [CostController::class, 'update'])->name('cost.update');
+
+    Route::delete('/destroy/{id}', [CostController::class, 'destroy'])->name('cost.destroy');
+
+});
+/**###################################### ./EXPENSE ############################################**/
 
 
 /**####################################### REPORT ###########################################**/
@@ -130,7 +153,7 @@ Route::prefix('report')->group(function () {
 
     Route::get('/', [ReportController::class, 'index'])->name('report.index');
 
-//    Route::post('/add', [ExpenseController::class, 'store'])->name('report.store');
+    Route::post('/show', [ExpenseController::class, 'show'])->name('report.show');
 
 //    Route::get('/show/{id}', [ExpenseController::class, 'show'])->name('report.show');
 //

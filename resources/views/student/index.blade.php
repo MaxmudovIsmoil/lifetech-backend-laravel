@@ -33,7 +33,7 @@
 
                         @foreach($students as $s)
                             <tr class="js_this_tr" data-id="{{ $s['id'] }}">
-                                <td class="text-center">{{ $i++ }}</td>
+                                <td class="text-center">{{ ++$loop->index }}</td>
                                 <td>{{ $s['firstname'] }}</td>
                                 <td>{{ $s['lastname'] }}</td>
                                 <td>{{ substr($s['phone'], 4) }}</td>
@@ -47,6 +47,12 @@
                                 <td>{{ date('d.m.Y H:i', strtotime($s['created_at'])) }}</td>
                                 <td class="text-right">
                                     <div class="btn-group js_btn_group" role="group" aria-label="Basic example">
+
+
+                                            <button type="button" class="btn btn-danger js_show_cash_expenses" data-url="{{ route('student.ajax_student_payments_datatable') }}">
+                                                testDatatable
+                                            </button>
+
 
                                         @if(Request::segment(2) == '2' || Request::segment(2) == '3')
                                             <a href="{{ route('student.student_active_groups', [$s['id']]) }}" class="js_student_payment_btn btn btn-success btn-square btn-sm" title="To'lov" data-toggle="modal" data-target="#payment{{ $s['id'] }}">

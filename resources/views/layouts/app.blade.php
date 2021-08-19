@@ -80,14 +80,26 @@
                 Guruhlar
             </a>
         </li>
-        <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link @if(Request::segment(1) == 'expense') active @endif" href="{{ route('expense.index') }}">
+        <li class="c-sidebar-nav-item c-sidebar-nav-dropdown @if(Request::segment(1) == 'expense') c-show @endif" href="#">
+            <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
                 <svg class="c-sidebar-nav-icon">
                     <use xlink:href="{{ asset('icons/sprites/free.svg#cil-money') }}"></use>
-                </svg>
-                Chiqmlar
+                </svg> Harajatlar
             </a>
+            <ul class="c-sidebar-nav-dropdown-items">
+                <li class="c-sidebar-nav-item">
+                    <a class="c-sidebar-nav-link @if((Request::segment(1) == 'expense') && (Request::segment(2) !== 'report')) active @endif" href="{{ route('expense.index', ['cost_type' => 0]) }}">
+                        <span class="c-sidebar-nav-icon"></span> Harajat qo'shish
+                    </a>
+                </li>
+                <li class="c-sidebar-nav-item">
+                    <a class="c-sidebar-nav-link @if(Request::segment(1) == 'cost') active @endif" href="{{ route('cost.index') }}">
+                        <span class="c-sidebar-nav-icon"></span> Harajat turi
+                    </a>
+                </li>
+            </ul>
         </li>
+
         <li class="c-sidebar-nav-item">
             <a class="c-sidebar-nav-link @if(Request::segment(1) == 'report') active @endif" href="{{ route('report.index') }}">
                 <svg class="c-sidebar-nav-icon">
@@ -170,8 +182,8 @@
         </ul>
     </header>
     <div class="c-body">
-        <main class="c-main">
-            <div class="container-fluid">
+        <main class="c-main p-3">
+            <div class="container-fluid p-0">
                 @yield('content')
             </div>
         </main>
@@ -215,6 +227,8 @@
     <script src="{{ asset('js/functionStudent.js') }}"></script>
 
 @endif
+
+<script src="{{ asset('js/testDatatable.js') }}"></script>
 
 </body>
 </html>

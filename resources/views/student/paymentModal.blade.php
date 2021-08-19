@@ -39,8 +39,7 @@
                     <input type="hidden" name="last_lend" class="js_last_lend" value="">
                     <input type="hidden" name="td_last_month" class="js_td_last_month" value="">
                     <div class="form-group mb-1">
-                        <select class="form-control js_student_payment_month" name="month">
-                        </select>
+                        <select class="form-control js_student_payment_month" name="month"></select>
                     </div>
 
                     <div class="form-group mb-1">

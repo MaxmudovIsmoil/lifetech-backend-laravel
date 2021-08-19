@@ -245,12 +245,47 @@ $(document).ready(function () {
 
     $('.students_ingroup').multiSelect({
         afterSelect: (values) => {
-            alert("Guruhga qo'shishni tasdiqlaysizmi")
+            let modal = $(document).find('#student_in_group_model')
+            modal.modal('show')
+            setTimeout(function () {
+                modal.modal('hide');
+            }, 6000);
         },
         afterDeselect: (values) => {
-            alert("Guruhdan chiqarishni tasdiqlaysizmi")
+            let modal = $(document).find('#student_out_group_model')
+            modal.modal('show')
+            setTimeout(function () {
+                modal.modal('hide');
+            }, 6000);
         }
     })
+
+    /***
+     * add Student in group and update
+     * **/
+    $('.js_add_student_group_modal_from').on( 'submit',  function(e) {
+        e.preventDefault()
+        let url = $(this).attr('action')
+        let formData = new FormData(this);
+
+        let modal = $(this).closest('.modal');
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            dataType: "json",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: (response) => {
+                modal.modal('hide')
+                console.log(1111)
+            },
+            error: (response) => {
+                console.log(response)
+            }
+        });
+    });
 
     /** ================================= ./GROUPS  ================================== **/
 
@@ -332,5 +367,58 @@ $(document).ready(function () {
         $(this).removeClass('is-invalid')
         $(this).siblings('.cost_id_error').addClass('valid-feedback')
     })
+
+    /** expense category btn first add active **/
+    let pathExpense = window.location.pathname + window.location.search
+    if (pathExpense == '/expense/0') {
+        $('.js_expense_btn .btn').first().removeClass('btn-secondary')
+        $('.js_expense_btn .btn').first().addClass('btn-primary')
+    }
+    /** ================================= ./Expense  ================================== **/
+
+
+    /** =================================  Cost  ================================== **/
+
+    /** Cost add & edit **/
+    $('.js_cost_modal_form').on('submit', function(e) {
+        e.preventDefault()
+        
+
+        let url     = $(this).attr('action')
+        let method  = $(this).attr('method')
+        let name_error  = $(this).find('.name_error')
+
+        $.ajax({
+            url: url,
+            type: method,
+            dataType: "json",
+            data: $(this).serialize(),
+            success: (response) => {
+                console.log(response)
+                if (response.success == false) {
+
+                    if (response.errors.name) {
+                        name_error.removeClass('valid-feedback')
+                        name_error.siblings('input[name="name"]').addClass('is-invalid')
+                    }
+
+                }
+                if (response.success) {
+                    location.reload()
+                }
+            },
+            error: (response) => {
+                console.log(response)
+            }
+        });
+
+    });
+
+    $('.js_cost_modal_form input[name="name"]').on('keyup', function () {
+        $(this).removeClass('is-invalid')
+        $(this).siblings('.name_error').addClass('valid-feedback')
+    })
+
+    /** =================================  ./Cost  ================================== **/
 
 });

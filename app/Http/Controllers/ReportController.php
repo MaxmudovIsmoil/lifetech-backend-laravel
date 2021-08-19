@@ -35,67 +35,32 @@ class ReportController extends Controller
 
 
     /**
-     * Store a newly created resource in storage.
+     * Report form_date between to_date show
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function show(Request $request)
     {
-        $validate = $request->validate([
-            'name'  => 'string|required',
-            'money'  => 'string|required',
-            'cost_id' => 'string|required',
+        $title = '';
+
+        $validation = $request->validate([
+            'from_date' => 'required',
+            'to_date'   => 'required'
         ]);
 
-        try {
-            Expense::create([
-                'name'  =>  $request->name,
-                'money' =>  $request->money,
-                'comment' =>  '',
-                'cost_id' =>  $request->cost_id
-            ]);
-            return redirect()->route('expense.index');
-        } catch (\Exception $exception) {
-            dd($exception);
+        if ($validation) {
+            try {
+
+
+
+                return view('report.index', compact('title', 'costs'));
+            } catch (\Exception $exception) {
+                dd($exception);
+            }
         }
 
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $course = Expense::findOrFail($id);
-        $course->fill([
-            'name'  => $request->name,
-            'money' => $request->money,
-            'cost_id' => $request->cost_id,
-        ]);
-        $course->save();
-
-        return redirect()->route('expense.index');
-
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $u = Expense::findOrFail($id);
-
-        $u->delete();
-
-        return response()->json(['id' => $id]);
-    }
 }
