@@ -43,29 +43,34 @@
                                 <td>{{ substr($t['phone'], 4) }}</td>
                                 <td class="text-center">{{ 40 }}</td>
                                 <td class="text-right">
-                                    <div class="btn-group js_btn_group" role="group" aria-label="Basic example">
-                                        <a href="{{ route('student.show', [$t['id']]) }}" class="js_show_student btn btn-warning btn-square btn-sm" title="Ko'rish" data-toggle="modal" data-target="#show{{ $t['id'] }}">
-                                            <svg class="c-icon c-icon-lg">
-                                                <use xlink:href="{{ asset('/icons/sprites/free.svg#cil-low-vision') }}"></use>
-                                            </svg>
-                                        </a>
-                                        {{-- Show Modal--}}
-                                        @include('teacher.showModal')
-
-                                        <a href="" class="js_edit_btn btn btn-info btn-square btn-sm" title="Тахрирлаш" data-toggle="modal" data-target="#edit{{ $t['id'] }}">
-                                            <svg class="c-icon c-icon-lg">
-                                                <use xlink:href="{{ asset('/icons/sprites/free.svg#cil-color-border') }}"></use>
-                                            </svg>
-                                        </a>
-                                        {{-- Edit Modal--}}
-                                        @include('teacher.editModal')
-
-                                        <button type="button" data-url="{{ route('teacher.destroy', [$t['id']]) }}" data-name="{{ $t['firstname'] }}" class="btn btn-danger js_delete_btn btn-square btn-sm" title="O'chirish" data-toggle="modal" data-target="#delete_notify">
-                                            <svg class="c-icon c-icon-lg" title="O'chirish">
-                                                <use xlink:href="{{ asset('/icons/sprites/free.svg#cil-trash') }}"></use>
-                                            </svg>
-                                        </button>
+                                    <div class="dropdown d-inline-block">
+                                        <svg class="c-icon c-icon-lg" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <use xlink:href="{{ asset('/icons/sprites/free.svg#cil-options') }}"></use>
+                                        </svg>
+                                        <div class="dropdown-menu pt-0 pb-0" aria-labelledby="dropdownMenuButton">
+                                            <a href="{{ route('student.show', [$t['id']]) }}" class="dropdown-item js_show_student" data-toggle="modal" data-target="#show{{ $t['id'] }}">
+                                                <svg class="c-icon c-icon-md mr-2">
+                                                    <use xlink:href="{{ asset('/icons/sprites/free.svg#cil-low-vision') }}"></use>
+                                                </svg> To'liq ko'rish
+                                            </a>
+                                            <a href="" class="dropdown-item js_edit_btn" data-toggle="modal" data-target="#edit{{ $t['id'] }}">
+                                                <svg class="c-icon c-icon-md mr-2">
+                                                    <use xlink:href="{{ asset('/icons/sprites/free.svg#cil-color-border') }}"></use>
+                                                </svg> Tahrirlash
+                                            </a>
+                                            <button type="button" data-url="{{ route('teacher.destroy', [$t['id']]) }}" data-name="{{ $t['firstname'] }}" class="dropdown-item js_delete_btn" title="O'chirish" data-toggle="modal" data-target="#delete_notify">
+                                                <svg class="c-icon c-icon-lg">
+                                                    <use xlink:href="{{ asset('/icons/sprites/free.svg#cil-trash') }}"></use>
+                                                </svg> O'chirish
+                                            </button>
+                                        </div>
                                     </div>
+
+                                    {{-- Show Modal--}}
+                                    @include('teacher.showModal')
+                                    {{-- Edit Modal--}}
+                                    @include('teacher.editModal')
+
                                 </td>
                             </tr>
                         @endforeach
@@ -75,4 +80,139 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('script')
+    <script src="{{ asset('js/functionTeacher.js') }}"></script>
+    <script src="{{ asset('js/jquery.maskedinput.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            /** Teacher add & edit **/
+            $('.js_modal_teacher_form').on('submit', function (e) {
+                e.preventDefault()
+
+                let url = $(this).attr('action')
+                let method = $(this).attr('method')
+                let firstname_error = $(this).find('.firstname_error')
+                let lastname_error = $(this).find('.lastname_error')
+                let phone_error = $(this).find('.phone_error')
+                let address_error = $(this).find('.address_error')
+                let born_error = $(this).find('.born_error')
+                let company_error = $(this).find('.company_error')
+                let username_error = $(this).find('.username_error')
+                let password_error = $(this).find('.password_error')
+                let password_confirm_error = $(this).find('.password_confirm_error')
+
+                let course_error = $(this).find('.course_error')
+                $.ajax({
+                    url: url,
+                    type: method,
+                    dataType: "json",
+                    data: $(this).serialize(),
+                    success: (response) => {
+                        console.log(response)
+                        if (response.success == false) {
+                            if (response.errors.firstname) {
+                                firstname_error.removeClass('valid-feedback')
+                                firstname_error.siblings('input[name="firstname"]').addClass('is-invalid')
+                            }
+                            if (response.errors.lastname) {
+                                lastname_error.removeClass('valid-feedback')
+                                lastname_error.siblings('input[name="lastname"]').addClass('is-invalid')
+                            }
+                            if (response.errors.phone) {
+                                phone_error.removeClass('valid-feedback')
+                                phone_error.siblings('input[name="phone"]').addClass('is-invalid')
+                            }
+                            if (response.errors.address) {
+                                address_error.removeClass('valid-feedback')
+                                address_error.siblings('input[name="address"]').addClass('is-invalid')
+                            }
+                            if (response.errors.born) {
+                                born_error.removeClass('valid-feedback')
+                                born_error.siblings('input[name="born"]').addClass('is-invalid')
+                            }
+
+                            if (response.errors.company) {
+                                company_error.removeClass('valid-feedback')
+                                company_error.siblings('input[name="company"]').addClass('is-invalid')
+                            }
+                            if (response.errors.username) {
+                                username_error.removeClass('valid-feedback')
+                                username_error.siblings('input[name="username"]').addClass('is-invalid')
+                            }
+
+                            if (response.errors.password) {
+                                password_error.removeClass('valid-feedback')
+                                password_error.siblings('input[name="password"]').addClass('is-invalid')
+                            }
+                            if (response.errors.password_confirm) {
+                                password_confirm_error.removeClass('valid-feedback')
+                                password_confirm_error.siblings('input[name="password_confirm"]').addClass('is-invalid')
+                            }
+
+                            if (response.errors.course) {
+                                course_error.removeClass('valid-feedback')
+                            }
+
+                        }
+                        if (response.success) {
+                            location.reload()
+                        }
+                    },
+                    error: (response) => {
+                        console.log(response)
+                    }
+                });
+
+            });
+
+            $('.js_modal_teacher_form input[name="firstname"]').on('keyup', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.firstname_error').addClass('valid-feedback')
+            })
+
+            $('.js_modal_teacher_form input[name="lastname"]').on('keyup', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.lastname_error').addClass('valid-feedback')
+            })
+
+            $('.js_modal_teacher_form input[name="phone"]').on('keyup', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.phone_error').addClass('valid-feedback')
+            })
+
+            $('.js_modal_teacher_form input[name="address"]').on('keyup', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.address_error').addClass('valid-feedback')
+            })
+
+            $('.js_modal_teacher_form input[name="born"]').on('change', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.born_error').addClass('valid-feedback')
+            })
+
+            $('.js_modal_teacher_form input[name="company"]').on('keyup', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.company_error').addClass('valid-feedback')
+            })
+
+            $('.js_modal_teacher_form input[name="username"]').on('keyup', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.username_error').addClass('valid-feedback')
+            })
+
+            $('.js_modal_teacher_form input[name="password"]').on('keyup', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.password_error').addClass('valid-feedback')
+            })
+
+            $('.js_modal_teacher_form input[name="password_confirm"]').on('keyup', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.password_confirm_error').addClass('valid-feedback')
+            })
+        });
+    </script>
 @endsection

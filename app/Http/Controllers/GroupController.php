@@ -54,7 +54,7 @@ class GroupController extends Controller
             $groups[$k]['lastname'] = $g->lastname;
             $groups[$k]['firstname'] = $g->firstname;
             $groups[$k]['days'] = explode(';', $g->days);
-            $groups[$k]['time'] = date('H : s',strtotime($g->time));
+            $groups[$k]['time'] = substr($g->time, 0, -3);
             $groups[$k]['type'] = $g->type;
             $groups[$k]['status'] = $g->status;
         }

@@ -117,6 +117,11 @@ function student_payment_month(months)
 
 $(document).ready(function () {
 
+    $("#phone").mask("(99) 999 99-99");
+    $("#phone2").mask("(99) 999 99-99");
+    $(".phone-student").mask("(99) 999 99-99");
+
+
     $('#datatableStudent').DataTable({
         paging: true,
         pageLength: 20,
@@ -133,116 +138,6 @@ $(document).ready(function () {
             emptyTable: "Ma'lumot mavjud emas",
         }
     });
-
-
-
-    /** =================================  STUDENTS VALIDATE  ================================== **/
-
-    $('.js_modal_student_form').on('submit', function(e) {
-        e.preventDefault()
-
-        let url = $(this).attr('action')
-        let method = $(this).attr('method')
-        let firstname_error = $(this).find('.firstname_error')
-        let lastname_error  = $(this).find('.lastname_error')
-        let phone_error     = $(this).find('.phone_error')
-        let address_error   = $(this).find('.address_error')
-        let born_error      = $(this).find('.born_error')
-        let company_error   = $(this).find('.company_error')
-        let advertising_error = $(this).find('.advertising_error')
-
-        let course_error = $(this).find('.course_error')
-        $.ajax({
-            url: url,
-            type: method,
-            dataType: "json",
-            data: $(this).serialize(),
-            success: (response) => {
-                console.log(response)
-                if (response.success == false) {
-                    if (response.errors.firstname) {
-                        firstname_error.removeClass('valid-feedback')
-                        firstname_error.siblings('input[name="firstname"]').addClass('is-invalid')
-                    }
-                    if (response.errors.lastname) {
-                        lastname_error.removeClass('valid-feedback')
-                        lastname_error.siblings('input[name="lastname"]').addClass('is-invalid')
-                    }
-                    if (response.errors.phone) {
-                        phone_error.removeClass('valid-feedback')
-                        phone_error.siblings('input[name="phone"]').addClass('is-invalid')
-                    }
-                    if (response.errors.address) {
-                        address_error.removeClass('valid-feedback')
-                        address_error.siblings('input[name="address"]').addClass('is-invalid')
-                    }
-                    if (response.errors.born) {
-                        born_error.removeClass('valid-feedback')
-                        born_error.siblings('input[name="born"]').addClass('is-invalid')
-                    }
-
-                    if (response.errors.company) {
-                        company_error.removeClass('valid-feedback')
-                        company_error.siblings('input[name="company"]').addClass('is-invalid')
-                    }
-                    if (response.errors.advertising) {
-                        advertising_error.removeClass('valid-feedback')
-                        advertising_error.siblings('select[name="advertising"]').addClass('is-invalid')
-                    }
-
-
-                    if (response.errors.course) {
-                        course_error.removeClass('valid-feedback')
-                    }
-
-                }
-                if (response.success) {
-                    location.reload()
-                }
-            },
-            error: (response) => {
-                console.log(response)
-            }
-        });
-
-    });
-
-    $('.js_modal_student_form input[name="firstname"]').on('keyup', function () {
-        $(this).removeClass('is-invalid')
-        $(this).siblings('.firstname_error').addClass('valid-feedback')
-    })
-
-    $('.js_modal_student_form input[name="lastname"]').on('keyup', function () {
-        $(this).removeClass('is-invalid')
-        $(this).siblings('.lastname_error').addClass('valid-feedback')
-    })
-
-    $('.js_modal_student_form input[name="phone"]').on('keyup', function () {
-        $(this).removeClass('is-invalid')
-        $(this).siblings('.phone_error').addClass('valid-feedback')
-    })
-
-    $('.js_modal_student_form input[name="address"]').on('keyup', function () {
-        $(this).removeClass('is-invalid')
-        $(this).siblings('.address_error').addClass('valid-feedback')
-    })
-
-    $('.js_modal_student_form input[name="born"]').on('change', function () {
-        $(this).removeClass('is-invalid')
-        $(this).siblings('.born_error').addClass('valid-feedback')
-    })
-
-    $('.js_modal_student_form input[name="company"]').on('keyup', function () {
-        $(this).removeClass('is-invalid')
-        $(this).siblings('.company_error').addClass('valid-feedback')
-    })
-
-    $('.js_modal_student_form select[name="advertising"]').on('change', function () {
-        $(this).removeClass('is-invalid')
-        $(this).siblings('.advertising_error').addClass('valid-feedback')
-    })
-
-    /** ================================= ./STUDENTS VALIDATE  ================================== **/
 
 
     /***
@@ -522,6 +417,121 @@ $(document).ready(function () {
     })
     /** ================================================================================== **/
 
+
+
+
+
+    /** ================================= STUDENTS MODAl VALIDATE  ================================== **/
+    var edit_status = $('#edit_status option:checked').val()
+    if (edit_status == 0) {
+        $("#edit_cause_div").removeClass('d-none')
+    }
+    $('#editModal #edit_status').change( function () {
+        var val = $(this).val()
+        if (val == 0)
+            $("#edit_cause_div").removeClass('d-none')
+        else
+            $("#edit_cause_div").addClass('d-none')
+    })
+
+    /** Student add modal close inputs in clear **/
+    $('#addModal button[data-dismiss="modal"]').click(function () {
+        $("#addModal").find('#firstname').val('')
+        $('#addModal').find('#lastname').val('')
+        $("#addModal").find('#phone').val('')
+        $("#addModal").find('#phone2').val('')
+        $('#addModal').find('#address').val('')
+        $("#addModal").find('#born').val('')
+        $("#addModal").find('#company').val('')
+    })
+
+    /** Student edit modal close inputs in clear **/
+    $('#editModal button[data-dismiss="modal"]').click(function () {
+
+        $("#editModal").find('.course_inputs').removeAttr('checked')
+
+        var firstname = $("#editModal").find('#edit_firstname')
+        firstname.val('')
+        firstname.removeClass('is-invalid')
+        firstname.siblings('.firstname_error').addClass('valid-feedback')
+
+        var lastname = $('#editModal').find('#edit_lastname')
+        lastname.val('')
+        lastname.removeClass('is-invalid')
+        lastname.siblings('.lastname_error').addClass('valid-feedback')
+
+        var phone = $("#editModal").find('#edit_phone')
+        phone.val('')
+        phone.removeClass('is-invalid')
+        phone.siblings('.phone_error').addClass('valid-feedback')
+
+        var phone2 = $("#editModal").find('#edit_phone2')
+        phone2.val('')
+        phone2.removeClass('is-invalid')
+        phone2.siblings('.phone2_error').addClass('valid-feedback')
+
+        var address = $('#editModal').find('#edit_address')
+        address.val('')
+        address.removeClass('is-invalid')
+        address.siblings('.address_error').addClass('valid-feedback')
+
+        var born = $("#editModal").find('#edit_born')
+        born.val('')
+        born.removeClass('is-invalid')
+        born.siblings('.born_error').addClass('valid-feedback')
+
+        var company = $("#editModal").find('#edit_company')
+        company.val('')
+        company.removeClass('is-invalid')
+        company.siblings('.company_error').addClass('valid-feedback')
+
+        var status = $('#editModal').find('#edit_status').val()
+        if (status !== 0) {
+            $("#edit_cause_div").removeClass('d-none')
+        }
+    })
+
+    $('.js_modal_student_form input[name="firstname"]').on('keyup', function () {
+        $(this).removeClass('is-invalid')
+        $(this).siblings('.firstname_error').addClass('valid-feedback')
+    })
+
+    $('.js_modal_student_form input[name="lastname"]').on('keyup', function () {
+        $(this).removeClass('is-invalid')
+        $(this).siblings('.lastname_error').addClass('valid-feedback')
+    })
+
+    $('.js_modal_student_form input[name="phone"]').on('keyup', function () {
+        $(this).removeClass('is-invalid')
+        $(this).siblings('.phone_error').addClass('valid-feedback')
+    })
+
+    $('.js_modal_student_form input[name="address"]').on('keyup', function () {
+        $(this).removeClass('is-invalid')
+        $(this).siblings('.address_error').addClass('valid-feedback')
+    })
+
+    $('.js_modal_student_form input[name="born"]').on('change', function () {
+        $(this).removeClass('is-invalid')
+        $(this).siblings('.born_error').addClass('valid-feedback')
+    })
+
+    $('.js_modal_student_form input[name="company"]').on('keyup', function () {
+        $(this).removeClass('is-invalid')
+        $(this).siblings('.company_error').addClass('valid-feedback')
+    })
+
+    $('.js_modal_student_form select[name="advertising"]').on('change', function () {
+        $(this).removeClass('is-invalid')
+        $(this).siblings('.advertising_error').addClass('valid-feedback')
+    })
+
+    $('.js_modal_student_form select[name="status"]').on('change', function () {
+        $(this).removeClass('is-invalid')
+        $(this).siblings('.status_error').addClass('valid-feedback')
+    })
+
+    /** ================================= ./STUDENTS VALIDATE  ================================== **/
 
 })
 

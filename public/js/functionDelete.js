@@ -28,7 +28,7 @@ delete_form.on('submit', function (e) {
         data: $(this).serialize(),
         success: (response) => {
 
-            console.log(response);
+            // console.log(response);
 
             this_tr.each(function (item, arr) {
                 if($(arr).data('id') == response.id)
@@ -38,7 +38,7 @@ delete_form.on('submit', function (e) {
             $(this).closest('#delete_notify').modal('hide')
         },
         error: (response) => {
-            console.log(response);
+            console.log('error:',response);
         }
     });
 

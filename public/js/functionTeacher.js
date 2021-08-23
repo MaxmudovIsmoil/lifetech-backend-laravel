@@ -1,6 +1,10 @@
 
 $(document).ready(function () {
 
+    $("#phone").mask("(99) 999 99-99");
+    $("#phone2").mask("(99) 999 99-99");
+    $(".phone-student").mask("(99) 999 99-99");
+
     $('#datatableTeacher').DataTable({
         paging: false,
         pageLength: 20,

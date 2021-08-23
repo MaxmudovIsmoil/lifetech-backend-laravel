@@ -64,3 +64,94 @@
         </div>
     </div>
 @endsection
+
+@section('script')
+    <script>
+        $(document).ready(function () {
+
+            $('#datatableExpense').DataTable({
+                paging: true,
+                pageLength: 10,
+                lengthChange: false,
+                searching: true,
+                ordering: true,
+                info: false,
+                autoWidth: false,
+                language: {
+                    search: "",
+                    searchPlaceholder: " Izlash...",
+                    sLengthMenu: "Кўриш _MENU_ тадан",
+                    sInfo: "Ko'rish _START_ dan _END_ gacha _TOTAL_ jami",
+                    emptyTable: "Ma'lumot mavjud emas",
+                }
+            });
+
+            /** Expense add & edit **/
+            $('.js_expense_modal_form').on('submit', function (e) {
+                e.preventDefault()
+
+                let url = $(this).attr('action')
+                let method = $(this).attr('method')
+                let name_error = $(this).find('.name_error')
+                let money_error = $(this).find('.money_error')
+                let cost_id_error = $(this).find('.cost_id_error')
+
+                $.ajax({
+                    url: url,
+                    type: method,
+                    dataType: "json",
+                    data: $(this).serialize(),
+                    success: (response) => {
+                        console.log(response)
+                        if (response.success == false) {
+
+                            if (response.errors.name) {
+                                name_error.removeClass('valid-feedback')
+                                name_error.siblings('input[name="name"]').addClass('is-invalid')
+                            }
+                            if (response.errors.money) {
+                                money_error.removeClass('valid-feedback')
+                                money_error.siblings('input[name="money"]').addClass('is-invalid')
+                            }
+                            if (response.errors.cost_id) {
+                                cost_id_error.removeClass('valid-feedback')
+                                cost_id_error.siblings('select[name="cost_id"]').addClass('is-invalid')
+                            }
+
+                        }
+                        if (response.success) {
+                            location.reload()
+                        }
+                    },
+                    error: (response) => {
+                        console.log(response)
+                    }
+                });
+
+            });
+
+            $('.js_expense_modal_form input[name="name"]').on('keyup', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.name_error').addClass('valid-feedback')
+            })
+
+            $('.js_expense_modal_form input[name="money"]').on('keyup', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.money_error').addClass('valid-feedback')
+            })
+
+            $('.js_expense_modal_form select[name="cost_id"]').on('change', function () {
+                $(this).removeClass('is-invalid')
+                $(this).siblings('.cost_id_error').addClass('valid-feedback')
+            })
+
+            /** expense category btn first add active **/
+            let pathExpense = window.location.pathname + window.location.search
+            if (pathExpense == '/expense/0') {
+                $('.js_expense_btn .btn').first().removeClass('btn-secondary')
+                $('.js_expense_btn .btn').first().addClass('btn-primary')
+            }
+        })
+
+    </script>
+@endsection

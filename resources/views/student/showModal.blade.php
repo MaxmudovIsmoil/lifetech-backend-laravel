@@ -1,4 +1,4 @@
-<div class="modal fade" id="show{{ $s['id'] }}" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="edit-model-Lavel" aria-hidden="true">
+<div class="modal fade" id="showModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="edit-model-Lavel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,66 +8,70 @@
                 </button>
             </div>
             <div class="modal-body text-left pb-0">
-                <table class="table table-striped table-bordered">
+                <table class="table table-striped table-bordered table-sm" id="tableStudentShow">
                     <thead>
-                    <tr>
-                        <th>№</th>
-                        <th width="46%">First</th>
-                        <th width="46%">Last</th>
-                    </tr>
+                        <tr>
+                            <th class="text-center">№</th>
+                            <th width="46%">First</th>
+                            <th width="46%">Last</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <th>1</th>
-                        <td>Ismi</td>
-                        <td>{{ $s['firstname'] }}</td>
-                    </tr>
-                    <tr>
-                        <th>2</th>
-                        <td>Familiyasi</td>
-                        <td>{{ $s['lastname'] }}</td>
-                    </tr>
-                    <tr>
-                        <th>3</th>
-                        <td>Tug'ilgan sanasi</td>
-                        <td>{{ date("d.m.Y", strtotime($s['born'])) }}</td>
-                    </tr>
-                    <tr>
-                        <th>4</th>
-                        <td>Telefon nomeri</td>
-                        <td>{{ $s['phone'] }}</td>
-                    </tr>
-                    <tr>
-                        <th>5</th>
-                        <td>Manzili</td>
-                        <td>{{ $s['address'] }}</td>
-                    </tr>
-                    <tr>
-                        <th>6</th>
-                        <td>Jinsi</td>
-                        <td>@if($s['gender'] == 1) {{ 'erkak' }} @else {{ 'ayol' }} @endif</td>
-                    </tr>
-                    <tr>
-                        <th>7</th>
-                        <td>Ishi / o'qishi</td>
-                        <td>{{ $s['company'] }}</td>
-                    </tr>
-                    <tr>
-                        <th>8</th>
-                        <td>Reklamani qayerda ko'rganligi</td>
-                        <td>{{ $s['advertising'] }}</td>
-                    </tr>
-                    <tr>
-                        <th class="align-middle">9</th>
-                        <td class="align-middle">Tanlagan kurslari</td>
-                        <td>
-                            @foreach($course as $c)
-                                @if(in_array($c->id, $s['course_ids']))
-                                    {{ $c->name }}<br>
-                                @endif
-                            @endforeach
-                        </td>
-                    </tr>
+                        <tr>
+                            <th class="text-center">1</th>
+                            <td>Ismi</td>
+                            <td class="firstname"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">2</th>
+                            <td>Familiyasi</td>
+                            <td class="lastname"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">3</th>
+                            <td>Tug'ilgan sanasi</td>
+                            <td class="born"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">4</th>
+                            <td>Telefon nomeri 1</td>
+                            <td class="phone"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">5</th>
+                            <td>Telefon nomeri 2</td>
+                            <td class="phone2"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">6</th>
+                            <td>Manzili</td>
+                            <td class="address"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">7</th>
+                            <td>Jinsi</td>
+                            <td class="gender"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">8</th>
+                            <td>Ishi / o'qishi</td>
+                            <td class="company"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">9</th>
+                            <td>Reklamani qayerda ko'rganligi</td>
+                            <td class="advertising"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">10</th>
+                            <td class="align-middle">Tanlagan kurslari</td>
+                            <td class="course_ids"></td>
+                        </tr>
+                        <tr>
+                            <th class="text-center">11</th>
+                            <td class="align-middle">Kelgan sanasi</td>
+                            <td class="created_at"></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

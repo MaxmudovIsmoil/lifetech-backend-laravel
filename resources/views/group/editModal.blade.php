@@ -80,7 +80,7 @@
                                 </div>
                                 <div class="col-md-12 mt-2">
                                     <label for="time{{ $g['id'] }}">Soati</label>
-                                    <input type="time" class="form-control" name="time" id="time{{ $g['id'] }}" value="{{ date("H:i", strtotime($g['time'])) }}" >
+                                    <input type="time" class="form-control" name="time" id="time{{ $g['id'] }}" value="{{ $g['time'] }}" >
                                     <div class="valid-feedback text-danger time_error">Vaqtini kiriting !</div>
                                 </div>
                                 <div class="col-md-6 mt-2">

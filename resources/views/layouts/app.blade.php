@@ -5,14 +5,12 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Life Tech</title>
+    <link rel="icon" href="{{ asset('logo.svg') }}" type="image/icon type">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('icons-css/all.css') }}">
     <link rel="stylesheet" href="{{ asset('css/form-validation.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/multi-select.css') }}">
-
-    <link rel="stylesheet" href="{{ asset('css/bootstrap-multiselect.css') }}">
-
+    @yield('style')
     <link rel="stylesheet" href="{{ asset('css/datatable.css') }}">
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <style>
@@ -65,7 +63,7 @@
             </a>
         </li>
         <li class="c-sidebar-nav-item">
-            <a class="c-sidebar-nav-link @if(Request::segment(1) == 'student') active @endif" href="{{ route('student.index',[1]) }}">
+            <a class="c-sidebar-nav-link @if(Request::segment(1) == 'student') active @endif" href="{{ route('student.newcomers') }}">
                 <svg class="c-sidebar-nav-icon">
                     <use xlink:href="{{ asset('icons/sprites/free.svg#cil-people') }}"></use>
                 </svg>
@@ -204,31 +202,15 @@
 <script src="{{ asset('js/coreui-utils.js') }}"></script>
 <script src="{{ asset('js/main.js') }}"></script>
 <script src="{{ asset('js/datatable.js') }}"></script>
-<script src="{{ asset('js/jquery.maskedinput.min.js') }}"></script>
+
 {{-- number format --}}
 <script src="{{ asset('js/numeral.js') }}"></script>
 <script src="{{ asset('js/form-validation.js') }}"></script>
-<script src="{{ asset('js/jquery.multi-select.js') }}"></script>
-
-<script src="{{ asset('js/bootstrap-multiselect.js') }}"></script>
 
 <script src="{{ asset('js/functionDelete.js') }}"></script>
-<script src="{{ asset('js/functionTeacher.js') }}"></script>
 <script src="{{ asset('js/functions.js') }}"></script>
 
-@if(Request::segment(1) == 'course')
-
-    <script src="{{ asset('js/functionCourse.js') }}"></script>
-
-@endif
-
-@if(Request::segment(1) == 'student')
-
-    <script src="{{ asset('js/functionStudent.js') }}"></script>
-
-@endif
-
-<script src="{{ asset('js/testDatatable.js') }}"></script>
+@yield('script')
 
 </body>
 </html>

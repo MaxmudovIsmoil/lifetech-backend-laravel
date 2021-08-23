@@ -21,13 +21,15 @@ use App\Http\Controllers\ReportController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Auth::routes();
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/', function () {
+    return view('auth.login');
+});
+
+
+//Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::get('/admin', [AdminController::class, 'index'])->name('admin');
 
@@ -68,11 +70,34 @@ Route::prefix('teacher')->group(function () {
 /**####################################### STUDENT ###########################################**/
 Route::prefix('student')->group(function () {
 
-    Route::get('/{id}', [StudentController::class, 'index'])->name('student.index');
+    Route::get('/{id}', [StudentController::class, 'index'])->name('student.index')->where('id', '[0-9]+');
+
+
+    Route::get('/newcomers', [StudentController::class, 'newcomers'])->name('student.newcomers');
+    Route::get('/getNewcomers', [StudentController::class, 'getNewcomers'])->name('student.getNewcomers');
+
+    Route::get('/getNewcomersStudyShow/{id}', [StudentController::class, 'getNewcomersStudyShow'])->name('student.getNewcomersStudyShow')->where('id', '[0-9]+');
+
+    Route::get('/study', [StudentController::class, 'study'])->name('student.study');
+    Route::get('/getStudy', [StudentController::class, 'getStudy'])->name('student.getStudy');
+
+    Route::get('/graduated', [StudentController::class, 'graduated'])->name('student.graduated');
+    Route::get('/getGraduated', [StudentController::class, 'getGraduated'])->name('student.getGraduated');
+
+    Route::get('/getGraduatedShow/{id}', [StudentController::class, 'getGraduatedShow'])->name('student.getGraduatedShow');
+
+
+    Route::get('/uneducated', [StudentController::class, 'uneducated'])->name('student.uneducated');
+    Route::get('/getUneducated', [StudentController::class, 'getUneducated'])->name('student.getUneducated');
+
+    Route::get('/getUneducatedShow/{id}', [StudentController::class, 'getUneducatedShow'])->name('student.getUneducatedShow');
+
 
     Route::post('/add', [StudentController::class, 'store'])->name('student.store');
 
     Route::get('/show/{id}', [StudentController::class, 'show'])->name('student.show');
+
+    Route::get('/getStudent/{id}', [StudentController::class, 'getStudent'])->name('student.getStudent');
 
     Route::put('/edit/{id}/update', [StudentController::class, 'update'])->name('student.update');
 
@@ -113,7 +138,7 @@ Route::prefix('group')->group(function () {
 /**####################################### EXPENSE ###########################################**/
 Route::prefix('expense')->group(function () {
 
-    Route::get('/{cost_type}', [ExpenseController::class, 'index'])->name('expense.index')->where('cost_type', '[0-9]+');;
+    Route::get('/{cost_type}', [ExpenseController::class, 'index'])->name('expense.index')->where('cost_type', '[0-9]+');
 
     Route::get('/report', [ExpenseController::class, 'report'])->name('expense.report');
 
