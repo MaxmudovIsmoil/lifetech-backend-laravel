@@ -1,49 +1,45 @@
-<div class="modal fade" id="paymentModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="payment-model-Lavel" aria-hidden="true">
+<div class="modal fade" id="payment{{ $s['id'] }}" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="payment-model-Lavel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="payment-model-Lavel">To'lovlar</h5>
+                <h5 class="modal-title" id="payment-model-Lavel">{{ $s['lastname']." ".$s['firstname'].' to\'lovlari' }}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body text-left pb-0 pt-2">
+                <select name="student_active_group" class="form-control js_student_active_group mb-3"></select>
                 <div class="div-student-payments">
-                    <table class="table table-sm table-striped table-bordered" id="datatablePaymentsStudent" width="99%">
+                    <table class="table table-striped table-bordered js_student_payment_table">
                         <thead class="student-payments-thead">
                             <tr>
-                                <th class="text-center" width="2%">Oy</th>
-                                <th class="text-center" width="20%">Sana</th>
+                                <th class="text-center">Oy</th>
+                                <th class="text-center">Sana</th>
                                 <th class="text-center">To'lov</th>
                                 <th class="text-center">Chegirma</th>
                                 <th class="text-center">To'langan</th>
                                 <th class="text-center">Qarzdorlik</th>
-                                <th class="text-center" width="2%">
+                                <th class="text-center">
                                     <svg class="c-icon c-icon-lg">
                                         <use xlink:href="{{ asset('/icons/sprites/free.svg#cil-options') }}"></use>
                                     </svg>
                                 </th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody class="js_student_payment_table_tbody"></tbody>
                     </table>
                 </div>
                 <hr class="mt-0 mb-2">
                 <p class="mb-1">To'lov qilish</p>
-                <form method="post" action="{{ route('studentPayment.payment_student') }}" class="form-group d-flex justify-content-between mb-1" id="js_pay_form_modal">
+                <form method="post" action="{{ route('student.student_payment', [$s['id']]) }}" data-student_id="{{ $s['id'] }}" class="form-group js_student_payment_in_group_form_modal d-flex justify-content-between mb-1">
                     @csrf
-                    <input type="hidden" name="student_id" class="js_student_id" value="">
                     <input type="hidden" name="group_id" class="js_group_id" value="">
                     <input type="hidden" name="total" class="js_total" value="">
-
-                    {{-- qarz to'lash uchun kerak --}}
-                    <input type="hidden" name="payment_id" class="js_payment_id" value="">
-                    <input type="hidden" name="qarz" class="js_lend" value="">
-
+                    <input type="hidden" name="last_payment_id" class="js_last_payment_id" value="">
+                    <input type="hidden" name="last_lend" class="js_last_lend" value="">
+                    <input type="hidden" name="td_last_month" class="js_td_last_month" value="">
                     <div class="form-group mb-1">
-                        <select class="form-control" name="month" id="js_student_payment_month">
-                            <option value="">---</option>
-                        </select>
+                        <select class="form-control js_student_payment_month" name="month"></select>
                     </div>
 
                     <div class="form-group mb-1">
@@ -60,7 +56,7 @@
                         </select>
                     </div>
                     <div class="form-group mb-1">
-                    <select class="form-control discount_type" name="discount_type">
+                        <select class="form-control discount_type" name="discount_type">
                             <option value="0">Chegirma</option>
                             <option value="1">so'm</option>
                             <option value="2">foiz</option>

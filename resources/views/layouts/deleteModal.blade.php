@@ -27,7 +27,7 @@
 
 
 {{-- Student payment delete modal --}}
-<div class="modal fade" id="delete_student_payment" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="delete-model-title" aria-hidden="true">
+<div class="modal fade" id="payment_delete_modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="delete-model-title" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content modal-sm" style="background: #ffe7e9;">
             <div class="modal-header">

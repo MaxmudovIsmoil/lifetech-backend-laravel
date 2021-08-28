@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class TeacherController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     /**
      * Display a listing of the resource.
      * closed
@@ -26,12 +21,10 @@ class TeacherController extends Controller
         $teacher = DB::table('users')->where('utype','teacher')->get();
         $i = 1;
 
-
         $course = Course::all();
 
         $teachers = array();
         foreach($teacher as $k => $t) {
-
             $teachers[$k]['id'] = $t->id;
             $teachers[$k]['username'] = $t->username;
             $teachers[$k]['firstname'] = $t->firstname;
@@ -46,7 +39,6 @@ class TeacherController extends Controller
             $teachers[$k]['advertising'] = $t->advertising;
             $teachers[$k]['created_at'] = $t->created_at;
             $teachers[$k]['course_ids'] = explode(';', $t->course_ids);
-
         }
 
         return view('teacher.index', compact('teachers', 'course', 'i'));

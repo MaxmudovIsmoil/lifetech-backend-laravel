@@ -1,5 +1,24 @@
 @extends('layouts.app')
 
+@section('style')
+    <style>
+        #datatablePaymentsStudent tr > td:first-child {
+            width: 2% !important;
+        }
+        #datatablePaymentsStudent tr > td:nth-child(2) {
+            width: 24% !important;
+        }
+        #datatablePaymentsStudent tr > td:nth-child(5) {
+            font-weight: 600 !important;
+        }
+        #datatablePaymentsStudent tr > td:nth-child(6) {
+            color: red !important;
+        }
+        #datatablePaymentsStudent tr > td:last-child {
+            width: 2% !important;
+        }
+    </style>
+@endsection
 @section('content')
 
     <div class="row">
@@ -11,6 +30,7 @@
                     <a href="{{ route('student.graduated') }}"  class="btn btn-square btn-secondary">Bitirganlar <span class="badge badge-info">{{ $students_count['graduated'] }}</span></a>
                     <a href="{{ route('student.uneducated') }}" class="btn btn-square btn-secondary">O'qimaganlar <span class="badge badge-info">{{ $students_count['uneducated'] }}</span></a>
                 </div>
+
                 <div class="card-body" style="position: relative; padding-top: 10px;">
                     <table id="datatableStudy" class="display bg-info" style="width:100%;">
                         <thead>
@@ -20,9 +40,9 @@
                             <th>Familiya</th>
                             <th width="13%">Telefon</th>
                             <th>Kurs</th>
-                            <th>Guruh</th>
+                            <th width="12%">Guruh</th>
                             <th width="15%">Sana</th>
-                            <th width="8%" class="text-right">Harakatlar</th>
+                            <th width="5%" class="text-right">Harakatlar</th>
                         </tr>
                         </thead>
                         <tbody></tbody>
@@ -33,6 +53,9 @@
 
                     {{-- Show modal --}}
                     @include('student.showModal')
+
+                    {{--- Payment modal --}}
+                    @include('student.paymentModal')
                 </div>
             </div>
         </div>
@@ -50,6 +73,40 @@
             }
             return false;
         }
+
+        function create_payment_datatable(url, student_id, group_id)
+        {
+            var modal = $(document).find('#paymentModal');
+            var payment_table = modal.find('#datatablePaymentsStudent');
+
+            return payment_table.DataTable({
+                processing: false,
+                serverSide: false,
+                paging: false,
+                lengthChange: false,
+                searching: false,
+                ordering: false,
+                info: false,
+                autoWidth: true,
+                language: {
+                    emptyTable: "To'lov mavjud emas",
+                },
+                ajax: {
+                    "url": url,
+                    "data": { 'student_id': student_id, 'group_id': group_id }
+                },
+                columns: [
+                    {data: 'month', name: 'month', className: 'text-center'},
+                    {data: 'created_at', name: 'created_at', className: 'text-center'},
+                    {data: 'total', name: 'total', className: 'text-center', render: $.fn.dataTable.render.number(' ', '.', 0, '')},
+                    {data: 'discount', name: 'discount', className: 'text-center', render: $.fn.dataTable.render.number(' ', '.', 0, '')},
+                    {data: 'paid', name: 'paid', className: 'text-center', render: $.fn.dataTable.render.number(' ', '.', 0, '')},
+                    {data: 'debt', name: 'debt', className: 'text-center', render: $.fn.dataTable.render.number(' ', '.', 0, '')},
+                    {data: 'action', name: 'action', className: 'text-center'}
+                ]
+            });
+        }
+
 
         $(document).ready(function() {
 
@@ -76,7 +133,9 @@
                 },
                 processing: true,
                 serverSide: true,
-                ajax: '{{ route("student.getStudy") }}',
+                ajax: {
+                    "url": '{{ route("student.getStudy") }}',
+                },
                 columns: [
                     {data: 'number'},
                     {data: 'firstname'},
@@ -283,8 +342,158 @@
             })
 
 
+            /** ================================== Payments ================================= **/
+
+            var modal = $(document).find('#paymentModal');
+            var payment_table = modal.find('#datatablePaymentsStudent');
+
+            $(document).on('click', '.js_payment_btn', function(e) {
+                e.preventDefault()
+
+                var fullName = $(this).data('fullName')
+                modal.find('.modal-title').html(fullName+" to'lovlari")
+
+                var url = $(this).attr('href')
+                var student_id = $(this).data('studentId')
+                var group_id = $(this).data('groupId')
+
+                create_payment_datatable(url, student_id, group_id)
+
+                /** Forma uchun student_id, group_id, month, total larni qo'shish **/
+                var form = $(document).find('#js_pay_form_modal')
+                form.find("input[name='student_id']").val(student_id)
+                form.find('input[name="group_id"]').val(group_id)
+                var option = '<option>---</option>';
+
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ route("studentPayment.get_months_price") }}',
+                    data: { 'group_id': group_id },
+                    success: (response) => {
+                        console.log(response)
+                        form.find('input[name="total"]').val(response[0].price)
+                        form.find('input[name="paid"]').attr('max', response[0].price)
+                        for( var i = 1; i <= response[0].month; i++ ) {
+                            option += '<option value="'+i+'">'+i+' - oy</option>';
+                        }
+                        form.find('#js_student_payment_month').html(option)
+                    },
+                    error: (response) => {
+                        console.log('error: ', response)
+                    }
+                })
+                modal.modal('show')
+            });
+
+            $('#paymentModal button[data-dismiss="modal"]').click(function () {
+                var payment_table = modal.find('#datatablePaymentsStudent').DataTable();
+                payment_table.destroy();
+            });
+
+
+            $('#js_student_payment_month').on('change', function() {
+
+                var this_val = $(this).val()
+                var modal = $(document).find('#paymentModal');
+                var table_tbody_tr = $('#datatablePaymentsStudent tr')
+                var paid = modal.find('.paid')
+
+                var payment_id = modal.find('.js_payment_id')
+                var lend = modal.find('.js_lend')
+                var total = modal.find('input[name="total"]').val()
+
+                var t = true;
+                $.each(table_tbody_tr, function (key, tr) {
+
+                    if (this_val == $(tr).data('month')) {
+                        var qarz = $(tr).data('qarz')
+                        paid.attr('max', qarz)
+                        payment_id.val($(tr).data('payment_id'))
+                        lend.val(qarz)
+                    }
+                    else if(this_val > $(tr).data('month')){
+                        paid.attr('max', total)
+                    }
+
+                })
+            })
+
+            $('.discount_type').on('change', function(e) {
+                let this_dis_type_val = $(this).val();
+                let form = $(this).closest('#js_pay_form_modal');
+                let discount_val = form.find('.discount_val');
+
+                if((this_dis_type_val == 1) || (this_dis_type_val == 2))
+                    discount_val.removeClass('d-none')
+                else
+                    discount_val.addClass('d-none')
+            });
+
+
+            $(document).on('submit', '#js_pay_form_modal', function(e) {
+                e.preventDefault()
+
+                var table_pay = $('#datatablePaymentsStudent').DataTable()
+                var url = $(this).attr('action')
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: $(this).serialize(),
+                    success: (response) => {
+                        console.log(response)
+
+                        if(response.success) {
+                            location.reload()
+                        }
+                    },
+                    error: (response) => {
+                        console.log('error: ', response)
+                    }
+
+                })
+            });
+
+
+            /** modaldagi o'chirish tugmachasi trash **/
+            $(document).on('click', '.js_payment_delete_btn', function(e){
+                e.preventDefault()
+                var url = $(this).attr('href')
+                var delete_modal = $('#payment_delete_modal')
+                $('#js_student_payment_delete_modal_form').attr('action', url)
+                delete_modal.modal('show')
+            })
+
+            $(document).on('submit', '#js_student_payment_delete_modal_form', function(e) {
+                e.preventDefault()
+                var delete_modal = $('#payment_delete_modal')
+                $.ajax({
+                    type: "POST",
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(),
+                    success: (response) => {
+
+                        var payment_table_tr = modal.find('#datatablePaymentsStudent tr');
+
+                        $.each(payment_table_tr, function (key, tr) {
+
+                            var paymentId = $(tr).data('payment_id')
+
+                            if(paymentId == response.payment_id) {
+                                $(tr).remove()
+                            }
+                        })
+                        delete_modal.modal('hide')
+
+                    },
+                    error: (response) => {
+                        console.log('error: ', response)
+                    }
+                })
+
+            })
         });
     </script>
 
-    <script src="{{ asset('js/functionStudent.js') }}"></script>
+{{--    <script src="{{ asset('js/functionStudent.js') }}"></script>--}}
 @endsection

@@ -62,6 +62,7 @@ function StudentPayments(student_payments, payment_detalies)
             else if(value.discount_type == 2) {
                 ch = '<td class="text-center">'+value.discount_val+ '% &nbsp&nbsp ' +numeral(value.discount).format('0,0')+'</td>\n'
             }
+
             sp += '<tr data-payment_id="'+value.id+'" data-month="'+value.month+'" data-tolov="'+value.total+'" data-tolangan="'+payment_detalies[value.id]+'" data-chegirma="'+value.discount+'" data-qarz="'+q+'">\n' +
                 '   <td class="text-center">' + value.month + '</td>\n' +
                 '   <td class="text-center">' + formatDate(value.created_at) + '</td>\n' +
@@ -248,7 +249,6 @@ $(document).ready(function () {
                 t = true
             }
         })
-
 
 
         form.find('.js_last_payment_id').val(lend.data('payment_id'))
